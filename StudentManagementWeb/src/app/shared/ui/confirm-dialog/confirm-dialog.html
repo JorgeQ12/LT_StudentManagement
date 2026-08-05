@@ -1,0 +1,27 @@
+<div class="w-[min(30rem,calc(100vw-2rem))] rounded-panel bg-surface-raised p-6 shadow-floating">
+  <div class="flex items-start gap-4">
+    <span
+      class="grid size-11 shrink-0 place-items-center rounded-full"
+      [class.bg-danger-soft]="data.tone === 'danger'"
+      [class.text-danger]="data.tone === 'danger'"
+      [class.bg-brand-50]="data.tone !== 'danger'"
+      [class.text-brand-700]="data.tone !== 'danger'"
+    >
+      <ng-icon name="lucideTriangleAlert" size="21" aria-hidden="true" />
+    </span>
+    <div>
+      <h2 class="text-lg font-bold text-content">{{ data.title }}</h2>
+      <p class="mt-2 text-sm leading-6 text-content-muted">{{ data.message }}</p>
+    </div>
+  </div>
+  <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <button type="button" class="btn-secondary" (click)="dialogRef.close(false)">Volver</button>
+    <button
+      type="button"
+      [class]="data.tone === 'danger' ? 'btn-danger' : 'btn-primary'"
+      (click)="dialogRef.close(true)"
+    >
+      {{ data.confirmLabel }}
+    </button>
+  </div>
+</div>

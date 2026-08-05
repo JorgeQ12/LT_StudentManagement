@@ -1,0 +1,3 @@
+namespace StudentManagementApi.Presentation.WebApi.Contracts.Administration.AcademicPrograms;
+
+public sealed record DeactivateAcademicProgramRequest(Guid AcademicProgramId);

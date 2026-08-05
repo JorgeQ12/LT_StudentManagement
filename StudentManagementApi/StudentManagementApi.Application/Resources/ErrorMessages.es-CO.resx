@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="EndpointNotFound_Title" xml:space="preserve"><value>Endpoint no encontrado</value></data>
+  <data name="EndpointNotFound_Detail" xml:space="preserve"><value>No se encontró el endpoint solicitado.</value></data>
+  <data name="MethodNotAllowed_Title" xml:space="preserve"><value>Método no permitido</value></data>
+  <data name="MethodNotAllowed_Detail" xml:space="preserve"><value>El método HTTP no está permitido para este endpoint.</value></data>
+  <data name="UnsupportedMediaType_Title" xml:space="preserve"><value>Tipo de contenido no admitido</value></data>
+  <data name="UnsupportedMediaType_Detail" xml:space="preserve"><value>El tipo de contenido de la solicitud no es compatible.</value></data>
+  <data name="ValueTooLong_Title" xml:space="preserve"><value>Valor demasiado largo</value></data>
+  <data name="ValueTooLong_Detail" xml:space="preserve"><value>El valor supera la longitud máxima permitida.</value></data>
+  <data name="InvalidProgramCode_Title" xml:space="preserve"><value>Código de programa inválido</value></data>
+  <data name="InvalidProgramCode_Detail" xml:space="preserve"><value>El código del programa académico no tiene un formato válido.</value></data>
+  <data name="InvalidCourseCode_Title" xml:space="preserve"><value>Código de materia inválido</value></data>
+  <data name="InvalidCourseCode_Detail" xml:space="preserve"><value>El código de la materia no tiene un formato válido.</value></data>
+  <data name="CatalogItemInactive_Title" xml:space="preserve"><value>Registro inactivo</value></data>
+  <data name="CatalogItemInactive_Detail" xml:space="preserve"><value>El registro solicitado se encuentra inactivo.</value></data>
+  <data name="CourseAlreadyAssigned_Title" xml:space="preserve"><value>Materia asignada</value></data>
+  <data name="CourseAlreadyAssigned_Detail" xml:space="preserve"><value>La materia ya está asignada o el profesor todavía tiene materias asignadas.</value></data>
+  <data name="EnrollmentInactive_Title" xml:space="preserve"><value>Inscripción inactiva</value></data>
+  <data name="EnrollmentInactive_Detail" xml:space="preserve"><value>La inscripción ya no se encuentra activa.</value></data>
+  <data name="ValidationFailed_Title" xml:space="preserve"><value>Solicitud inválida</value></data>
+  <data name="ValidationFailed_Detail" xml:space="preserve"><value>Uno o más datos de la solicitud no son válidos.</value></data>
+  <data name="InvalidAntiforgeryToken_Title" xml:space="preserve"><value>Token de seguridad inválido</value></data>
+  <data name="InvalidAntiforgeryToken_Detail" xml:space="preserve"><value>El token antifalsificación es inválido o ha expirado.</value></data>
+  <data name="RequiredField_Title" xml:space="preserve"><value>Campo requerido</value></data>
+  <data name="RequiredField_Detail" xml:space="preserve"><value>Este campo es obligatorio.</value></data>
+  <data name="InvalidIdentifier_Title" xml:space="preserve"><value>Identificador inválido</value></data>
+  <data name="InvalidIdentifier_Detail" xml:space="preserve"><value>El identificador suministrado no es válido.</value></data>
+  <data name="InvalidEmail_Title" xml:space="preserve"><value>Correo electrónico inválido</value></data>
+  <data name="InvalidEmail_Detail" xml:space="preserve"><value>El correo electrónico no tiene un formato válido.</value></data>
+  <data name="InvalidDocumentNumber_Title" xml:space="preserve"><value>Documento inválido</value></data>
+  <data name="InvalidDocumentNumber_Detail" xml:space="preserve"><value>El número de documento no es válido.</value></data>
+  <data name="InvalidPhoneNumber_Title" xml:space="preserve"><value>Teléfono inválido</value></data>
+  <data name="InvalidPhoneNumber_Detail" xml:space="preserve"><value>El número de teléfono no es válido.</value></data>
+  <data name="InvalidDateOfBirth_Title" xml:space="preserve"><value>Fecha de nacimiento inválida</value></data>
+  <data name="InvalidDateOfBirth_Detail" xml:space="preserve"><value>La fecha de nacimiento debe ser anterior a la fecha actual.</value></data>
+  <data name="InvalidPassword_Title" xml:space="preserve"><value>Contraseña inválida</value></data>
+  <data name="InvalidPassword_Detail" xml:space="preserve"><value>La contraseña no cumple los requisitos de seguridad.</value></data>
+  <data name="InvalidCredentials_Title" xml:space="preserve"><value>Credenciales inválidas</value></data>
+  <data name="InvalidCredentials_Detail" xml:space="preserve"><value>El correo electrónico o la contraseña son incorrectos.</value></data>
+  <data name="Unauthorized_Title" xml:space="preserve"><value>Autenticación requerida</value></data>
+  <data name="Unauthorized_Detail" xml:space="preserve"><value>Debe iniciar sesión para realizar esta operación.</value></data>
+  <data name="Forbidden_Title" xml:space="preserve"><value>Operación no permitida</value></data>
+  <data name="Forbidden_Detail" xml:space="preserve"><value>No tiene permisos para realizar esta operación.</value></data>
+  <data name="AccountInactive_Title" xml:space="preserve"><value>Cuenta inactiva</value></data>
+  <data name="AccountInactive_Detail" xml:space="preserve"><value>La cuenta se encuentra inactiva.</value></data>
+  <data name="StudentNotFound_Title" xml:space="preserve"><value>Estudiante no encontrado</value></data>
+  <data name="StudentNotFound_Detail" xml:space="preserve"><value>No se encontró el estudiante solicitado.</value></data>
+  <data name="EmailAlreadyExists_Title" xml:space="preserve"><value>Correo electrónico registrado</value></data>
+  <data name="EmailAlreadyExists_Detail" xml:space="preserve"><value>Ya existe una cuenta con el correo electrónico suministrado.</value></data>
+  <data name="DocumentNumberAlreadyExists_Title" xml:space="preserve"><value>Documento registrado</value></data>
+  <data name="DocumentNumberAlreadyExists_Detail" xml:space="preserve"><value>Ya existe un estudiante con el documento suministrado.</value></data>
+  <data name="AcademicProgramNotFound_Title" xml:space="preserve"><value>Programa académico no encontrado</value></data>
+  <data name="AcademicProgramNotFound_Detail" xml:space="preserve"><value>No se encontró el programa académico solicitado.</value></data>
+  <data name="AcademicProgramCodeAlreadyExists_Title" xml:space="preserve"><value>Código de programa registrado</value></data>
+  <data name="AcademicProgramCodeAlreadyExists_Detail" xml:space="preserve"><value>Ya existe un programa académico con este código.</value></data>
+  <data name="CourseNotFound_Title" xml:space="preserve"><value>Materia no encontrada</value></data>
+  <data name="CourseNotFound_Detail" xml:space="preserve"><value>No se encontró la materia solicitada.</value></data>
+  <data name="CourseCodeAlreadyExists_Title" xml:space="preserve"><value>Código de materia registrado</value></data>
+  <data name="CourseCodeAlreadyExists_Detail" xml:space="preserve"><value>Ya existe una materia con este código dentro del programa.</value></data>
+  <data name="ProfessorNotFound_Title" xml:space="preserve"><value>Profesor no encontrado</value></data>
+  <data name="ProfessorNotFound_Detail" xml:space="preserve"><value>No se encontró el profesor solicitado.</value></data>
+  <data name="TeachingAssignmentNotFound_Title" xml:space="preserve"><value>Asignación docente no encontrada</value></data>
+  <data name="TeachingAssignmentNotFound_Detail" xml:space="preserve"><value>No se encontró la asignación docente solicitada.</value></data>
+  <data name="EnrollmentNotFound_Title" xml:space="preserve"><value>Inscripción no encontrada</value></data>
+  <data name="EnrollmentNotFound_Detail" xml:space="preserve"><value>El estudiante no tiene una inscripción activa.</value></data>
+  <data name="EnrollmentAlreadyExists_Title" xml:space="preserve"><value>Inscripción existente</value></data>
+  <data name="EnrollmentAlreadyExists_Detail" xml:space="preserve"><value>El estudiante ya tiene una inscripción activa.</value></data>
+  <data name="EnrollmentMustContainThreeCourses_Title" xml:space="preserve"><value>Selección incompleta</value></data>
+  <data name="EnrollmentMustContainThreeCourses_Detail" xml:space="preserve"><value>Debe seleccionar exactamente tres materias.</value></data>
+  <data name="EnrollmentCoursesMustBeDistinct_Title" xml:space="preserve"><value>Materias repetidas</value></data>
+  <data name="EnrollmentCoursesMustBeDistinct_Detail" xml:space="preserve"><value>Las tres materias seleccionadas deben ser diferentes.</value></data>
+  <data name="EnrollmentCoursesMustBelongToSameProgram_Title" xml:space="preserve"><value>Programa académico inconsistente</value></data>
+  <data name="EnrollmentCoursesMustBelongToSameProgram_Detail" xml:space="preserve"><value>Todas las materias deben pertenecer al programa seleccionado.</value></data>
+  <data name="EnrollmentCoursesMustBeActive_Title" xml:space="preserve"><value>Materia no disponible</value></data>
+  <data name="EnrollmentCoursesMustBeActive_Detail" xml:space="preserve"><value>Todas las materias y sus profesores deben estar activos.</value></data>
+  <data name="EnrollmentCoursesMustHaveDifferentProfessors_Title" xml:space="preserve"><value>Profesor repetido</value></data>
+  <data name="EnrollmentCoursesMustHaveDifferentProfessors_Detail" xml:space="preserve"><value>No puede seleccionar dos materias dictadas por el mismo profesor.</value></data>
+  <data name="ProfessorCourseLimitExceeded_Title" xml:space="preserve"><value>Carga docente excedida</value></data>
+  <data name="ProfessorCourseLimitExceeded_Detail" xml:space="preserve"><value>El profesor ya tiene dos materias asignadas en este programa.</value></data>
+  <data name="CatalogItemInUse_Title" xml:space="preserve"><value>Registro en uso</value></data>
+  <data name="CatalogItemInUse_Detail" xml:space="preserve"><value>El registro no puede modificarse porque está siendo utilizado por una inscripción activa.</value></data>
+  <data name="ConcurrencyConflict_Title" xml:space="preserve"><value>Conflicto de concurrencia</value></data>
+  <data name="ConcurrencyConflict_Detail" xml:space="preserve"><value>La información cambió durante la operación. Actualice los datos e intente nuevamente.</value></data>
+  <data name="RateLimitExceeded_Title" xml:space="preserve"><value>Demasiadas solicitudes</value></data>
+  <data name="RateLimitExceeded_Detail" xml:space="preserve"><value>Se superó el número de intentos permitidos. Intente nuevamente más tarde.</value></data>
+  <data name="UnexpectedError_Title" xml:space="preserve"><value>Error inesperado</value></data>
+  <data name="UnexpectedError_Detail" xml:space="preserve"><value>Ocurrió un error inesperado al procesar la solicitud.</value></data>
+  <data name="ServiceUnavailable_Title" xml:space="preserve"><value>Servicio no disponible</value></data>
+  <data name="ServiceUnavailable_Detail" xml:space="preserve"><value>El servicio no está disponible temporalmente.</value></data>
+</root>

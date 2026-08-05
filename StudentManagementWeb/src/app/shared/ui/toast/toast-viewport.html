@@ -1,0 +1,47 @@
+<section
+  class="pointer-events-none fixed top-4 right-4 z-100 flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3"
+  aria-label="Notificaciones"
+  aria-live="polite"
+>
+  @for (toast of toastService.messages(); track toast.id) {
+    <article
+      class="pointer-events-auto flex gap-3 rounded-panel border bg-surface-raised p-4 shadow-floating"
+    >
+      <span
+        class="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full"
+        [class.bg-success-soft]="toast.tone === 'success'"
+        [class.text-success]="toast.tone === 'success'"
+        [class.bg-danger-soft]="toast.tone === 'error'"
+        [class.text-danger]="toast.tone === 'error'"
+        [class.bg-brand-50]="toast.tone === 'info'"
+        [class.text-brand-700]="toast.tone === 'info'"
+      >
+        <ng-icon
+          [name]="
+            toast.tone === 'success'
+              ? 'lucideCircleCheck'
+              : toast.tone === 'error'
+                ? 'lucideCircleAlert'
+                : 'lucideInfo'
+          "
+          size="19"
+          aria-hidden="true"
+        />
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="font-semibold text-content">{{ toast.title }}</p>
+        @if (toast.message) {
+          <p class="mt-1 text-sm leading-5 text-content-muted">{{ toast.message }}</p>
+        }
+      </div>
+      <button
+        type="button"
+        class="grid size-8 place-items-center rounded-lg text-content-muted transition hover:bg-surface-muted hover:text-content"
+        aria-label="Cerrar notificación"
+        (click)="toastService.dismiss(toast.id)"
+      >
+        <ng-icon name="lucideX" size="17" aria-hidden="true" />
+      </button>
+    </article>
+  }
+</section>

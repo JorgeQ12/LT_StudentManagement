@@ -1,0 +1,14 @@
+<header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    @if (eyebrow()) {
+      <p class="eyebrow">{{ eyebrow() }}</p>
+    }
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-content sm:text-3xl">{{ title() }}</h1>
+    @if (description()) {
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-content-muted sm:text-base">
+        {{ description() }}
+      </p>
+    }
+  </div>
+  <div class="shrink-0"><ng-content /></div>
+</header>

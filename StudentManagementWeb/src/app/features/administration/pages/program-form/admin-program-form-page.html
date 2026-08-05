@@ -1,0 +1,96 @@
+<div class="space-y-7">
+  <sm-page-header
+    eyebrow="Oferta académica"
+    [title]="isEditing() ? 'Editar programa' : 'Crear programa'"
+    description="Define el código, nombre y descripción visibles para los estudiantes."
+  >
+    <a routerLink="/admin/academic-programs" class="btn-secondary">
+      <ng-icon name="lucideArrowLeft" size="17" aria-hidden="true" />
+      Volver
+    </a>
+  </sm-page-header>
+
+  @if (loading()) {
+    <sm-loading-state label="Cargando programa…" />
+  } @else {
+    <form class="panel max-w-3xl p-5 sm:p-7" novalidate (submit)="onSubmit($event)">
+      @if (problem()) {
+        <div class="mb-6 rounded-control border border-danger/25 bg-danger-soft p-4" role="alert">
+          <p class="font-semibold text-danger">{{ problem()?.title }}</p>
+          <p class="mt-1 text-sm text-content-muted">{{ problem()?.detail }}</p>
+        </div>
+      }
+
+      <div class="grid gap-5 sm:grid-cols-[10rem_1fr]">
+        <div>
+          <label for="program-code" class="form-label">Código</label>
+          <input
+            id="program-code"
+            class="form-control uppercase"
+            autocomplete="off"
+            placeholder="PGU"
+            [formField]="programForm.code"
+          />
+          @if (
+            errorFor('code', programForm.code().touched(), programForm.code().errors()[0]?.message);
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div>
+          <label for="program-name" class="form-label">Nombre del programa</label>
+          <input
+            id="program-name"
+            class="form-control"
+            autocomplete="off"
+            [formField]="programForm.name"
+          />
+          @if (
+            errorFor('name', programForm.name().touched(), programForm.name().errors()[0]?.message);
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="program-description" class="form-label">Descripción</label>
+          <textarea
+            id="program-description"
+            rows="5"
+            class="form-control resize-y"
+            [formField]="programForm.description"
+          ></textarea>
+          <div class="mt-1.5 flex justify-between gap-3">
+            @if (
+              errorFor(
+                'description',
+                programForm.description().touched(),
+                programForm.description().errors()[0]?.message
+              );
+              as message
+            ) {
+              <p class="form-error mt-0">{{ message }}</p>
+            } @else {
+              <span></span>
+            }
+            <span class="text-xs text-content-muted">{{ model().description.length }} / 500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-7 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+        <a routerLink="/admin/academic-programs" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="programForm().submitting()">
+          <ng-icon
+            [name]="programForm().submitting() ? 'lucideLoaderCircle' : 'lucideSave'"
+            size="17"
+            [class.animate-spin]="programForm().submitting()"
+            aria-hidden="true"
+          />
+          {{ programForm().submitting() ? 'Guardando…' : 'Guardar programa' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
