@@ -1,0 +1,6 @@
+using StudentManagementApi.Application.Common.Messaging;
+using StudentManagementApi.Application.Contracts;
+
+namespace StudentManagementApi.Application.Features.Enrollments.GetCurrentStudentClassmatesByCourse;
+
+public sealed record GetCurrentStudentClassmatesByCourseQuery : IQuery<IReadOnlyCollection<ClassmatesByCourseResponse>>;

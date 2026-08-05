@@ -1,0 +1,12 @@
+<span
+  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+  [class.bg-success-soft]="status() === 'Active'"
+  [class.text-success]="status() === 'Active'"
+  [class.bg-surface-muted]="status() === 'Inactive'"
+  [class.text-content-muted]="status() === 'Inactive'"
+  [class.bg-warning-soft]="status() === 'Cancelled'"
+  [class.text-warning]="status() === 'Cancelled'"
+>
+  <span class="size-1.5 rounded-full bg-current"></span>
+  {{ label() }}
+</span>

@@ -1,0 +1,10 @@
+**/bin
+**/obj
+.git
+.vs
+TestResults
+coverage
+*.user
+*.mdf
+*.ldf
+.env

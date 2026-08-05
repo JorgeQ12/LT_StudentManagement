@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+.vs/
+.artifacts/
+.idea/
+*.user
+*.suo
+*.pfx
+*.snk
+*.db
+*.mdf
+*.ldf
+TestResults/
+coverage/
+.env
+appsettings.Local.json
