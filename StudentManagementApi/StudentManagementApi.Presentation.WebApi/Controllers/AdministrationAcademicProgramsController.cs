@@ -20,15 +20,17 @@ namespace StudentManagementApi.Presentation.WebApi.Controllers;
 [Route("api/[controller]")]
 public sealed class AdministrationAcademicProgramsController(ISender sender) : ControllerBase
 {
-    /// <summary>Gets all academic programs, including inactive programs.</summary>
+    /// <summary>Gets academic programs, including inactive programs, with paging and filters.</summary>
+    /// <param name="request">The paging and filtering options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>All academic programs.</returns>
-    /// <response code="200">Returns all academic programs.</response>
+    /// <returns>A page of academic programs.</returns>
+    /// <response code="200">Returns the requested page of academic programs.</response>
+    /// <response code="400">The paging or filtering options are invalid.</response>
     /// <response code="401">The request is not authenticated.</response>
     /// <response code="403">The authenticated account is not an administrator.</response>
     [HttpGet(nameof(GetAllAcademicPrograms))]
-    public Task<Result<IReadOnlyCollection<AcademicProgramResponse>>> GetAllAcademicPrograms(CancellationToken cancellationToken) =>
-        sender.Send(new GetAllAcademicProgramsQuery(), cancellationToken);
+    public Task<Result<PagedResponse<AcademicProgramResponse>>> GetAllAcademicPrograms([FromQuery] GetAllAcademicProgramsRequest request,
+        CancellationToken cancellationToken) => sender.Send(new GetAllAcademicProgramsQuery(request.PageNumber, request.PageSize, request.Search, request.Status), cancellationToken);
 
     /// <summary>Gets an academic program by identifier.</summary>
     /// <param name="request">The academic program identifier.</param>

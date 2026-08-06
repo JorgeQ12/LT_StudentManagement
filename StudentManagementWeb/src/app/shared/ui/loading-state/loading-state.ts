@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 @Component({
   selector: 'sm-loading-state',
-  imports: [NgIcon],
+  imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './loading-state.html',
   styleUrl: './loading-state.css',

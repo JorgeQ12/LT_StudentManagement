@@ -11,11 +11,23 @@ namespace StudentManagementApi.Application.Features.Administration.Students.GetA
 internal sealed class GetAllStudentsHandler(IReadRepository<Student> studentRepository)
     : IRequestHandler<GetAllStudentsQuery, Result<PagedResponse<StudentResponse>>>
 {
-    public async Task<Result<PagedResponse<StudentResponse>>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResponse<StudentResponse>>> Handle(
+        GetAllStudentsQuery request,
+        CancellationToken cancellationToken)
     {
-        var totalCount = await studentRepository.CountAsync(cancellationToken);
-        var students = await studentRepository.ListAsync(new StudentsPageSpec(request.PageNumber, request.PageSize), cancellationToken);
-        return Result<PagedResponse<StudentResponse>>.Success(new(students.Select(student => student.ToResponse()).ToArray(), request.PageNumber,
-            request.PageSize, totalCount));
+        var search = string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim();
+
+        var totalCount = await studentRepository.CountAsync(
+            new StudentsCountSpec(search, request.Status),
+            cancellationToken);
+        var students = await studentRepository.ListAsync(
+            new StudentsPageSpec(request.PageNumber, request.PageSize, search, request.Status),
+            cancellationToken);
+
+        return Result<PagedResponse<StudentResponse>>.Success(new(
+            students.Select(student => student.ToResponse()).ToArray(),
+            request.PageNumber,
+            request.PageSize,
+            totalCount));
     }
 }

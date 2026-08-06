@@ -9,12 +9,12 @@
     <sm-loading-state />
   } @else if (facade.error()) {
     <sm-empty-state
-      icon="lucideCircleAlert"
+      icon="circle-alert"
       title="No pudimos cargar tu información"
       [description]="facade.error() || ''"
     >
       <button type="button" class="btn-primary" (click)="reload()">
-        <ng-icon name="lucideRefreshCw" size="17" aria-hidden="true" />
+        <sm-icon name="refresh-cw" size="17" aria-hidden="true" />
         Volver a intentar
       </button>
     </sm-empty-state>
@@ -56,14 +56,14 @@
         }
 
         <a routerLink="/student/enrollment" class="btn-primary mt-6">
-          <ng-icon name="lucideBookCheck" size="17" aria-hidden="true" />
+          <sm-icon name="book-check" size="17" aria-hidden="true" />
           {{ facade.enrollment() ? 'Gestionar inscripción' : 'Crear mi inscripción' }}
         </a>
       </article>
 
       <article class="panel flex flex-col p-5">
         <span class="grid size-11 place-items-center rounded-xl bg-accent-100 text-accent-600">
-          <ng-icon name="lucideUserRound" size="21" aria-hidden="true" />
+          <sm-icon name="user-round" size="21" aria-hidden="true" />
         </span>
         <h2 class="mt-4 text-lg font-bold text-content">Mi perfil</h2>
         <p class="mt-1 text-sm text-content-muted">{{ facade.profile()?.email }}</p>
@@ -72,7 +72,7 @@
         </p>
         <a routerLink="/student/profile" class="btn-secondary mt-auto pt-2">
           Revisar mis datos
-          <ng-icon name="lucideChevronRight" size="17" aria-hidden="true" />
+          <sm-icon name="chevron-right" size="17" aria-hidden="true" />
         </a>
       </article>
     </section>
@@ -83,7 +83,7 @@
           <span
             class="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"
           >
-            <ng-icon name="lucideUsersRound" size="21" aria-hidden="true" />
+            <sm-icon name="users" size="21" aria-hidden="true" />
           </span>
           <div>
             <h2 class="font-bold text-content">Conoce a tus compañeros</h2>
@@ -98,7 +98,7 @@
         </div>
         <a routerLink="/student/enrollment/classmates" class="btn-secondary shrink-0">
           Ver compañeros
-          <ng-icon name="lucideChevronRight" size="17" aria-hidden="true" />
+          <sm-icon name="chevron-right" size="17" aria-hidden="true" />
         </a>
       </section>
     }

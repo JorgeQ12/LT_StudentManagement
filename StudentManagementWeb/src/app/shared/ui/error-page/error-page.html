@@ -1,7 +1,7 @@
 <main class="grid min-h-screen place-items-center bg-surface px-5 py-12">
   <section class="panel w-full max-w-xl overflow-hidden text-center">
     <div class="bg-brand-950 px-6 py-10 text-white">
-      <ng-icon name="lucideShieldCheck" size="34" class="inline-block text-accent-500" />
+      <sm-icon name="shield-check" [size]="34" class="inline-block text-white" />
       <p class="mt-4 text-sm font-bold tracking-[0.2em] text-brand-100 uppercase">
         Error {{ status() }}
       </p>
@@ -10,7 +10,7 @@
     <div class="p-7 sm:p-9">
       <p class="leading-7 text-content-muted">{{ description() }}</p>
       <a routerLink="/" class="btn-primary mt-7">
-        <ng-icon name="lucideArrowLeft" size="17" aria-hidden="true" />
+        <sm-icon name="arrow-left" [size]="17" aria-hidden="true" />
         Volver al inicio
       </a>
     </div>

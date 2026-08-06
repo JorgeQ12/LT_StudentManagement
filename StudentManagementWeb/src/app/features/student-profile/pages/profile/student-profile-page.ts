@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { email, form, FormField, pattern, required, submit } from '@angular/forms/signals';
 import { Router } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiProblemDetails, UpdateStudentProfileRequest } from '@core/api/api.models';
@@ -26,7 +26,7 @@ const EMPTY_PROFILE: UpdateStudentProfileRequest = {
 
 @Component({
   selector: 'sm-student-profile-page',
-  imports: [FormField, LoadingState, NgIcon, PageHeader, StatusBadge],
+  imports: [FormField, LoadingState, Icon, PageHeader, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './student-profile-page.html',
   styleUrl: './student-profile-page.css',

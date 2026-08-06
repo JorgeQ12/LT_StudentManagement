@@ -30,7 +30,7 @@ public sealed class AdministrationStudentsController(ISender sender) : Controlle
     /// <response code="403">The authenticated account is not an administrator.</response>
     [HttpGet(nameof(GetAllStudents))]
     public Task<Result<PagedResponse<StudentResponse>>> GetAllStudents([FromQuery] GetAllStudentsRequest request,
-        CancellationToken cancellationToken) => sender.Send(new GetAllStudentsQuery(request.PageNumber, request.PageSize), cancellationToken);
+        CancellationToken cancellationToken) => sender.Send(new GetAllStudentsQuery(request.PageNumber, request.PageSize, request.Search, request.Status), cancellationToken);
 
     /// <summary>Gets a student by identifier.</summary>
     /// <param name="request">The student identifier.</param>

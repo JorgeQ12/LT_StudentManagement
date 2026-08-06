@@ -20,15 +20,17 @@ namespace StudentManagementApi.Presentation.WebApi.Controllers;
 [Route("api/[controller]")]
 public sealed class AdministrationProfessorsController(ISender sender) : ControllerBase
 {
-    /// <summary>Gets all professors, including inactive professors.</summary>
+    /// <summary>Gets professors, including inactive professors, with paging and filters.</summary>
+    /// <param name="request">The paging and filtering options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>All professors.</returns>
-    /// <response code="200">Returns all professors.</response>
+    /// <returns>A page of professors.</returns>
+    /// <response code="200">Returns the requested page of professors.</response>
+    /// <response code="400">The paging or filtering options are invalid.</response>
     /// <response code="401">The request is not authenticated.</response>
     /// <response code="403">The authenticated account is not an administrator.</response>
     [HttpGet(nameof(GetAllProfessors))]
-    public Task<Result<IReadOnlyCollection<ProfessorResponse>>> GetAllProfessors(CancellationToken cancellationToken) =>
-        sender.Send(new GetAllProfessorsQuery(), cancellationToken);
+    public Task<Result<PagedResponse<ProfessorResponse>>> GetAllProfessors([FromQuery] GetAllProfessorsRequest request, CancellationToken cancellationToken) =>
+        sender.Send(new GetAllProfessorsQuery(request.PageNumber, request.PageSize, request.Search, request.Status), cancellationToken);
 
     /// <summary>Gets a professor by identifier.</summary>
     /// <param name="request">The professor identifier.</param>

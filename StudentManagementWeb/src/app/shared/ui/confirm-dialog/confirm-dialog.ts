@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 export interface ConfirmDialogData {
   readonly title: string;
@@ -11,7 +11,7 @@ export interface ConfirmDialogData {
 
 @Component({
   selector: 'sm-confirm-dialog',
-  imports: [NgIcon],
+  imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.css',

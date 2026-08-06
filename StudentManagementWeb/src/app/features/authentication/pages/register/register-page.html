@@ -163,11 +163,11 @@
       [disabled]="registrationForm().submitting()"
     >
       @if (registrationForm().submitting()) {
-        <ng-icon name="lucideLoaderCircle" size="18" class="animate-spin" aria-hidden="true" />
+        <sm-icon name="loader-circle" [size]="18" [spin]="true" aria-hidden="true" />
         Creando tu cuenta…
       } @else {
         Crear cuenta de estudiante
-        <ng-icon name="lucideChevronRight" size="18" aria-hidden="true" />
+        <sm-icon name="chevron-right" [size]="18" aria-hidden="true" />
       }
     </button>
   </form>

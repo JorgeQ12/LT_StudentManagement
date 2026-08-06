@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 import { EmptyState } from '@shared/ui/empty-state';
 import { LoadingState } from '@shared/ui/loading-state';
@@ -12,7 +12,7 @@ import { StudentWorkspaceFacade } from '../../facades/student-workspace.facade';
 
 @Component({
   selector: 'sm-student-dashboard-page',
-  imports: [DatePipe, EmptyState, LoadingState, NgIcon, PageHeader, RouterLink, StatusBadge],
+  imports: [DatePipe, EmptyState, LoadingState, Icon, PageHeader, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './student-dashboard-page.html',
   styleUrl: './student-dashboard-page.css',

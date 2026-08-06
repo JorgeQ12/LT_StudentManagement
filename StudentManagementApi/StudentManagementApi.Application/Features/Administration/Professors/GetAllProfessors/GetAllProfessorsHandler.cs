@@ -9,11 +9,25 @@ using StudentManagementApi.Domain.Professors;
 namespace StudentManagementApi.Application.Features.Administration.Professors.GetAllProfessors;
 
 internal sealed class GetAllProfessorsHandler(IReadRepository<Professor> professorRepository)
-    : IRequestHandler<GetAllProfessorsQuery, Result<IReadOnlyCollection<ProfessorResponse>>>
+    : IRequestHandler<GetAllProfessorsQuery, Result<PagedResponse<ProfessorResponse>>>
 {
-    public async Task<Result<IReadOnlyCollection<ProfessorResponse>>> Handle(GetAllProfessorsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResponse<ProfessorResponse>>> Handle(
+        GetAllProfessorsQuery request,
+        CancellationToken cancellationToken)
     {
-        var professors = await professorRepository.ListAsync(new ProfessorsSpec(), cancellationToken);
-        return Result<IReadOnlyCollection<ProfessorResponse>>.Success(professors.Select(professor => professor.ToResponse()).ToArray());
+        var search = string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim();
+
+        var totalCount = await professorRepository.CountAsync(
+            new ProfessorsCountSpec(search, request.Status),
+            cancellationToken);
+        var professors = await professorRepository.ListAsync(
+            new ProfessorsPageSpec(request.PageNumber, request.PageSize, search, request.Status),
+            cancellationToken);
+
+        return Result<PagedResponse<ProfessorResponse>>.Success(new(
+            professors.Select(professor => professor.ToResponse()).ToArray(),
+            request.PageNumber,
+            request.PageSize,
+            totalCount));
     }
 }

@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 import { firstValueFrom } from 'rxjs';
 
 import { Course, CourseId } from '@core/api/api.models';
@@ -15,7 +15,7 @@ import { EnrollmentFacade } from '../../facades/enrollment.facade';
 
 @Component({
   selector: 'sm-enrollment-page',
-  imports: [LoadingState, NgIcon, NgTemplateOutlet, PageHeader, RouterLink, StatusBadge],
+  imports: [LoadingState, Icon, NgTemplateOutlet, PageHeader, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './enrollment-page.html',
   styleUrl: './enrollment-page.css',

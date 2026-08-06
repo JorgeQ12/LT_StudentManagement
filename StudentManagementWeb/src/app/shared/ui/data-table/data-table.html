@@ -1,0 +1,65 @@
+<div class="overflow-x-auto">
+  <table class="w-full min-w-190 border-collapse text-left">
+    <thead class="bg-surface-muted/60 text-xs font-bold tracking-wide text-content-muted uppercase">
+      <tr>
+        @for (column of columns(); track column.header) {
+          <th class="px-5 py-3.5">{{ column.header }}</th>
+        }
+        <th class="px-5 py-3.5">Estado</th>
+        <th class="px-5 py-3.5 text-right">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      @for (item of items(); track item.id) {
+        <tr class="transition hover:bg-brand-50/45">
+          @for (column of columns(); track column.header) {
+            <td [class]="cellClass(column.kind)">{{ cellValue(item, column) }}</td>
+          }
+          <td class="px-5 py-4"><sm-status-badge [status]="item.status" /></td>
+          <td class="px-5 py-4">
+            <div class="flex justify-end gap-2">
+              <a
+                [routerLink]="editLink(item)"
+                class="grid size-9 place-items-center rounded-control border text-content-muted transition hover:border-brand-600/40 hover:bg-brand-50 hover:text-brand-700"
+                aria-label="Editar registro"
+              >
+                <sm-icon name="pencil" [size]="16" aria-hidden="true" />
+              </a>
+              <button
+                type="button"
+                class="grid size-9 place-items-center rounded-control border transition disabled:opacity-50"
+                [class.text-danger]="item.status === 'Active'"
+                [class.text-success]="item.status === 'Inactive'"
+                [disabled]="busyId() === item.id"
+                [attr.aria-label]="
+                  item.status === 'Active' ? 'Desactivar registro' : 'Activar registro'
+                "
+                (click)="statusChange.emit(item)"
+              >
+                <sm-icon
+                  [name]="
+                    busyId() === item.id
+                      ? 'loader-circle'
+                      : item.status === 'Active'
+                        ? 'power-off'
+                        : 'power'
+                  "
+                  [size]="16"
+                  [spin]="busyId() === item.id"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<sm-pagination
+  [pageNumber]="pageNumber()"
+  [pageSize]="pageSize()"
+  [totalCount]="totalCount()"
+  (pageChange)="pageChange.emit($event)"
+/>

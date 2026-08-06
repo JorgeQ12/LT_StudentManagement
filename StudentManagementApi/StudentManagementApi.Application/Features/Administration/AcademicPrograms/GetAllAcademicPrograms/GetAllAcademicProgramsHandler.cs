@@ -9,11 +9,25 @@ using StudentManagementApi.Domain.Programs;
 namespace StudentManagementApi.Application.Features.Administration.AcademicPrograms.GetAllAcademicPrograms;
 
 internal sealed class GetAllAcademicProgramsHandler(IReadRepository<AcademicProgram> academicProgramRepository)
-    : IRequestHandler<GetAllAcademicProgramsQuery, Result<IReadOnlyCollection<AcademicProgramResponse>>>
+    : IRequestHandler<GetAllAcademicProgramsQuery, Result<PagedResponse<AcademicProgramResponse>>>
 {
-    public async Task<Result<IReadOnlyCollection<AcademicProgramResponse>>> Handle(GetAllAcademicProgramsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResponse<AcademicProgramResponse>>> Handle(
+        GetAllAcademicProgramsQuery request,
+        CancellationToken cancellationToken)
     {
-        var programs = await academicProgramRepository.ListAsync(new AcademicProgramsSpec(), cancellationToken);
-        return Result<IReadOnlyCollection<AcademicProgramResponse>>.Success(programs.Select(program => program.ToResponse()).ToArray());
+        var search = string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim();
+
+        var totalCount = await academicProgramRepository.CountAsync(
+            new AcademicProgramsCountSpec(search, request.Status),
+            cancellationToken);
+        var programs = await academicProgramRepository.ListAsync(
+            new AcademicProgramsPageSpec(request.PageNumber, request.PageSize, search, request.Status),
+            cancellationToken);
+
+        return Result<PagedResponse<AcademicProgramResponse>>.Success(new(
+            programs.Select(program => program.ToResponse()).ToArray(),
+            request.PageNumber,
+            request.PageSize,
+            totalCount));
     }
 }

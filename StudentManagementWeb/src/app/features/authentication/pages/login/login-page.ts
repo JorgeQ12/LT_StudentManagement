@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { email, form, FormField, minLength, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 import { ApiProblemDetails, LoginRequest } from '@core/api/api.models';
 import { fieldError, problemFromError } from '@core/api/api-error';
@@ -9,7 +9,7 @@ import { AuthFacade } from '@core/auth/auth.facade';
 
 @Component({
   selector: 'sm-login-page',
-  imports: [FormField, NgIcon, RouterLink],
+  imports: [FormField, Icon, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',

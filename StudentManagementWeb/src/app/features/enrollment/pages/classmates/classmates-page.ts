@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 import { EmptyState } from '@shared/ui/empty-state';
 import { LoadingState } from '@shared/ui/loading-state';
@@ -10,7 +10,7 @@ import { EnrollmentFacade } from '../../facades/enrollment.facade';
 
 @Component({
   selector: 'sm-classmates-page',
-  imports: [EmptyState, LoadingState, NgIcon, PageHeader, RouterLink],
+  imports: [EmptyState, LoadingState, Icon, PageHeader, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './classmates-page.html',
   styleUrl: './classmates-page.css',

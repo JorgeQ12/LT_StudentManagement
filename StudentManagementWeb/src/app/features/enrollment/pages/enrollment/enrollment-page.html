@@ -6,7 +6,7 @@
   >
     @if (facade.enrollment()) {
       <a routerLink="/student/enrollment/classmates" class="btn-secondary">
-        <ng-icon name="lucideUsersRound" size="17" aria-hidden="true" />
+        <sm-icon name="users" size="17" aria-hidden="true" />
         Mis compañeros
       </a>
     }
@@ -33,8 +33,8 @@
                 {{ enrollment.academicProgram.code }} · {{ enrollment.totalCredits }} créditos
               </p>
             </div>
-            <span class="grid size-14 place-items-center rounded-2xl bg-brand-900 text-accent-500">
-              <ng-icon name="lucideGraduationCap" size="28" aria-hidden="true" />
+            <span class="grid size-14 place-items-center rounded-2xl bg-brand-900 text-white">
+              <sm-icon name="graduation-cap" size="28" aria-hidden="true" />
             </span>
           </div>
 
@@ -56,7 +56,7 @@
                 </p>
                 <h3 class="mt-1 font-bold text-content">{{ course.name }}</h3>
                 <p class="mt-4 flex items-center gap-2 text-sm text-content-muted">
-                  <ng-icon name="lucidePresentation" size="16" aria-hidden="true" />
+                  <sm-icon name="presentation" size="16" aria-hidden="true" />
                   {{ course.professorFullName }}
                 </p>
               </article>
@@ -67,7 +67,7 @@
             class="flex flex-col gap-3 border-t bg-surface-muted/45 p-5 sm:flex-row sm:justify-end"
           >
             <button type="button" class="btn-secondary" (click)="startReplacement()">
-              <ng-icon name="lucidePencil" size="17" aria-hidden="true" />
+              <sm-icon name="pencil" size="17" aria-hidden="true" />
               Cambiar materias
             </button>
             <button
@@ -76,7 +76,7 @@
               [disabled]="saving()"
               (click)="cancelEnrollment()"
             >
-              <ng-icon name="lucidePowerOff" size="17" aria-hidden="true" />
+              <sm-icon name="power-off" size="17" aria-hidden="true" />
               Cancelar inscripción
             </button>
           </div>
@@ -185,7 +185,7 @@
                     </span>
                     <span class="mt-1 block font-semibold text-content">{{ course.name }}</span>
                     <span class="mt-2 flex items-center gap-1.5 text-xs text-content-muted">
-                      <ng-icon name="lucidePresentation" size="14" aria-hidden="true" />
+                      <sm-icon name="presentation" size="14" aria-hidden="true" />
                       {{ course.professorFullName || 'Sin profesor asignado' }}
                     </span>
                   </span>
@@ -219,8 +219,8 @@
           <ol class="space-y-3">
             @for (course of selectedCourses(); track course.id) {
               <li class="flex items-start gap-2 text-sm">
-                <ng-icon
-                  name="lucideCircleCheck"
+                <sm-icon
+                  name="circle-check"
                   size="16"
                   class="mt-0.5 shrink-0 text-success"
                   aria-hidden="true"
@@ -242,8 +242,8 @@
             [disabled]="!selectionIsValid() || saving()"
             (click)="saveEnrollment()"
           >
-            <ng-icon
-              [name]="saving() ? 'lucideLoaderCircle' : 'lucideCheck'"
+            <sm-icon
+              [name]="saving() ? 'loader-circle' : 'check'"
               size="17"
               [class.animate-spin]="saving()"
               aria-hidden="true"

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 import { ToastService } from './toast.service';
 
 @Component({
   selector: 'sm-toast-viewport',
-  imports: [NgIcon],
+  imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './toast-viewport.html',
   styleUrl: './toast-viewport.css',

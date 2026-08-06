@@ -16,7 +16,7 @@
     "paths": {
       "@core/*": ["./src/app/core/*"],
       "@environments/*": ["./src/environments/*"],
-      "@feature-contracts/*": ["./src/app/features/*/public-api.ts"],
+      "@feature-contracts/*": ["./src/app/features/*"],
       "@features/*": ["./src/app/features/*"],
       "@shared/*": ["./src/app/shared/*"]
     }
