@@ -41,17 +41,14 @@ export const routes: Routes = [
     path: 'student',
     canMatch: [roleGuard('Student')],
     loadComponent: () => import('./core/layout/app-shell').then((component) => component.AppShell),
-    loadChildren: () =>
-      import('./features/student-profile/student.routes').then((routes) => routes.STUDENT_ROUTES),
+    loadChildren: () => import('@features/student-profile').then((routes) => routes.STUDENT_ROUTES),
   },
   {
     path: 'admin',
     canMatch: [roleGuard('Administrator')],
     loadComponent: () => import('./core/layout/app-shell').then((component) => component.AppShell),
     loadChildren: () =>
-      import('./features/administration/administration.routes').then(
-        (routes) => routes.ADMINISTRATION_ROUTES,
-      ),
+      import('@features/administration').then((routes) => routes.ADMINISTRATION_ROUTES),
   },
   {
     path: 'forbidden',

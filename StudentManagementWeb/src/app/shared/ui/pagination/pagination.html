@@ -14,7 +14,7 @@
       aria-label="Página anterior"
       (click)="pageChange.emit(pageNumber() - 1)"
     >
-      <ng-icon name="lucideChevronLeft" size="17" aria-hidden="true" />
+      <sm-icon name="chevron-left" [size]="17" aria-hidden="true" />
       Anterior
     </button>
     <button
@@ -25,7 +25,7 @@
       (click)="pageChange.emit(pageNumber() + 1)"
     >
       Siguiente
-      <ng-icon name="lucideChevronRight" size="17" aria-hidden="true" />
+      <sm-icon name="chevron-right" [size]="17" aria-hidden="true" />
     </button>
   </div>
 </nav>

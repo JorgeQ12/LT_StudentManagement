@@ -16,15 +16,15 @@
         [class.bg-brand-50]="toast.tone === 'info'"
         [class.text-brand-700]="toast.tone === 'info'"
       >
-        <ng-icon
+        <sm-icon
           [name]="
             toast.tone === 'success'
-              ? 'lucideCircleCheck'
+              ? 'circle-check'
               : toast.tone === 'error'
-                ? 'lucideCircleAlert'
-                : 'lucideInfo'
+                ? 'circle-alert'
+                : 'info'
           "
-          size="19"
+          [size]="19"
           aria-hidden="true"
         />
       </span>
@@ -40,7 +40,7 @@
         aria-label="Cerrar notificación"
         (click)="toastService.dismiss(toast.id)"
       >
-        <ng-icon name="lucideX" size="17" aria-hidden="true" />
+        <sm-icon name="close" [size]="17" aria-hidden="true" />
       </button>
     </article>
   }

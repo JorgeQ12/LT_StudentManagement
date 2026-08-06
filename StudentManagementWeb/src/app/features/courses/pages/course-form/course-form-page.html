@@ -1,0 +1,127 @@
+<div class="space-y-7">
+  <sm-page-header
+    eyebrow="Catálogo académico"
+    [title]="isEditing() ? 'Editar materia' : 'Crear materia'"
+    description="Cada materia tiene tres créditos y pertenece a un único programa."
+  >
+    <a routerLink="/admin/courses" class="btn-secondary">
+      <sm-icon name="arrow-left" size="17" aria-hidden="true" />
+      Volver
+    </a>
+  </sm-page-header>
+
+  @if (loading()) {
+    <sm-loading-state label="Cargando materia…" />
+  } @else {
+    <form class="panel max-w-4xl p-5 sm:p-7" novalidate (submit)="onSubmit($event)">
+      @if (problem()) {
+        <div class="mb-6 rounded-control border border-danger/25 bg-danger-soft p-4" role="alert">
+          <p class="font-semibold text-danger">{{ problem()?.title }}</p>
+          <p class="mt-1 text-sm text-content-muted">{{ problem()?.detail }}</p>
+        </div>
+      }
+
+      <div class="grid gap-5 sm:grid-cols-[10rem_1fr]">
+        <div>
+          <label for="course-code" class="form-label">Código</label>
+          <input
+            id="course-code"
+            class="form-control uppercase"
+            autocomplete="off"
+            placeholder="MAT101"
+            [formField]="courseForm.code"
+          />
+          @if (
+            errorFor('code', courseForm.code().touched(), courseForm.code().errors()[0]?.message);
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div>
+          <label for="course-name" class="form-label">Nombre de la materia</label>
+          <input
+            id="course-name"
+            class="form-control"
+            autocomplete="off"
+            [formField]="courseForm.name"
+          />
+          @if (
+            errorFor('name', courseForm.name().touched(), courseForm.name().errors()[0]?.message);
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="course-program" class="form-label">Programa académico</label>
+          <select
+            id="course-program"
+            class="form-control"
+            [formField]="courseForm.academicProgramId"
+          >
+            <option value="">Selecciona un programa</option>
+            @for (program of programs(); track program.id) {
+              <option [value]="program.id">{{ program.code }} — {{ program.name }}</option>
+            }
+          </select>
+          @if (
+            errorFor(
+              'academicProgramId',
+              courseForm.academicProgramId().touched(),
+              courseForm.academicProgramId().errors()[0]?.message
+            );
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="course-professor" class="form-label">Profesor asignado</label>
+          <select
+            #professorSelect
+            id="course-professor"
+            class="form-control"
+            [value]="selectedProfessorId() || ''"
+            (change)="
+              selectedProfessorId.set(
+                professorSelect.value ? asProfessorId(professorSelect.value) : null
+              )
+            "
+          >
+            <option value="">Sin profesor asignado</option>
+            @for (professor of professors(); track professor.id) {
+              <option [value]="professor.id">
+                {{ professor.firstName }} {{ professor.lastName }} ·
+                {{ professor.assignedCourseCount }} materias
+              </option>
+            }
+          </select>
+          <p class="mt-2 text-xs leading-5 text-content-muted">
+            Un profesor puede tener máximo dos materias dentro de cada programa.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="mt-6 flex items-center gap-3 rounded-control bg-brand-50 p-4 text-sm text-brand-800"
+      >
+        <sm-icon name="book-marked" size="19" class="shrink-0" aria-hidden="true" />
+        Los créditos se asignan automáticamente: cada materia equivale a 3 créditos.
+      </div>
+
+      <div class="mt-7 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+        <a routerLink="/admin/courses" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="courseForm().submitting()">
+          <sm-icon
+            [name]="courseForm().submitting() ? 'loader-circle' : 'save'"
+            size="17"
+            [class.animate-spin]="courseForm().submitting()"
+            aria-hidden="true"
+          />
+          {{ courseForm().submitting() ? 'Guardando…' : 'Guardar materia' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

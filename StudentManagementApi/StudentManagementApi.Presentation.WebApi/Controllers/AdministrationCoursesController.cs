@@ -21,15 +21,17 @@ namespace StudentManagementApi.Presentation.WebApi.Controllers;
 [Route("api/[controller]")]
 public sealed class AdministrationCoursesController(ISender sender) : ControllerBase
 {
-    /// <summary>Gets all courses, including inactive courses.</summary>
+    /// <summary>Gets courses, including inactive courses, with paging and filters.</summary>
+    /// <param name="request">The paging and filtering options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>All courses.</returns>
-    /// <response code="200">Returns all courses.</response>
+    /// <returns>A page of courses.</returns>
+    /// <response code="200">Returns the requested page of courses.</response>
+    /// <response code="400">The paging or filtering options are invalid.</response>
     /// <response code="401">The request is not authenticated.</response>
     /// <response code="403">The authenticated account is not an administrator.</response>
     [HttpGet(nameof(GetAllCourses))]
-    public Task<Result<IReadOnlyCollection<CourseResponse>>> GetAllCourses(CancellationToken cancellationToken) =>
-        sender.Send(new GetAllCoursesQuery(), cancellationToken);
+    public Task<Result<PagedResponse<CourseResponse>>> GetAllCourses([FromQuery] GetAllCoursesRequest request, CancellationToken cancellationToken) =>
+        sender.Send(new GetAllCoursesQuery(request.PageNumber, request.PageSize, request.Search, request.Status, request.AcademicProgramId), cancellationToken);
 
     /// <summary>Gets a course by identifier.</summary>
     /// <param name="request">The course identifier.</param>

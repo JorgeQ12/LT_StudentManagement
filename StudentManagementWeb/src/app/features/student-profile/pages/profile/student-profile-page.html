@@ -129,8 +129,8 @@
 
         <div class="mt-7 flex justify-end">
           <button type="submit" class="btn-primary" [disabled]="profileForm().submitting()">
-            <ng-icon
-              [name]="profileForm().submitting() ? 'lucideLoaderCircle' : 'lucideSave'"
+            <sm-icon
+              [name]="profileForm().submitting() ? 'loader-circle' : 'save'"
               size="17"
               [class.animate-spin]="profileForm().submitting()"
               aria-hidden="true"
@@ -169,7 +169,7 @@
             [disabled]="deactivating()"
             (click)="deactivateAccount()"
           >
-            <ng-icon name="lucidePowerOff" size="17" aria-hidden="true" />
+            <sm-icon name="power-off" size="17" aria-hidden="true" />
             Desactivar mi cuenta
           </button>
         </section>

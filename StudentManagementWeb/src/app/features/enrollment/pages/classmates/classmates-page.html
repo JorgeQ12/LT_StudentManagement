@@ -5,7 +5,7 @@
     description="Personas que comparten contigo las materias de tu inscripción activa."
   >
     <a routerLink="/student/enrollment" class="btn-secondary">
-      <ng-icon name="lucideArrowLeft" size="17" aria-hidden="true" />
+      <sm-icon name="arrow-left" size="17" aria-hidden="true" />
       Volver a mi inscripción
     </a>
   </sm-page-header>
@@ -14,7 +14,7 @@
     <sm-loading-state label="Consultando compañeros…" />
   } @else if (!facade.enrollment()) {
     <sm-empty-state
-      icon="lucideUsersRound"
+      icon="users"
       title="Necesitas una inscripción activa"
       description="Cuando elijas tus materias podrás consultar aquí a tus compañeros."
     >
@@ -22,7 +22,7 @@
     </sm-empty-state>
   } @else if (error()) {
     <sm-empty-state
-      icon="lucideCircleAlert"
+      icon="circle-alert"
       title="No pudimos consultar tus compañeros"
       [description]="error() || ''"
     >
@@ -36,8 +36,8 @@
         <article class="panel overflow-hidden">
           <header class="border-b bg-brand-50 p-5">
             <div class="flex items-center gap-3">
-              <span class="grid size-10 place-items-center rounded-xl bg-brand-800 text-accent-500">
-                <ng-icon name="lucideBookOpen" size="20" aria-hidden="true" />
+              <span class="grid size-10 place-items-center rounded-xl bg-brand-800 text-white">
+                <sm-icon name="book-open" size="20" aria-hidden="true" />
               </span>
               <div>
                 <h2 class="font-bold text-content">{{ group.courseName }}</h2>

@@ -1,0 +1,86 @@
+<div class="space-y-7">
+  <sm-page-header
+    eyebrow="Equipo docente"
+    [title]="isEditing() ? 'Editar profesor' : 'Crear profesor'"
+    description="Registra la información que será visible en el catálogo y las inscripciones."
+  >
+    <a routerLink="/admin/professors" class="btn-secondary">
+      <sm-icon name="arrow-left" size="17" aria-hidden="true" />
+      Volver
+    </a>
+  </sm-page-header>
+
+  @if (loading()) {
+    <sm-loading-state label="Cargando profesor…" />
+  } @else {
+    <form class="panel max-w-3xl p-5 sm:p-7" novalidate (submit)="onSubmit($event)">
+      @if (problem()) {
+        <div class="mb-6 rounded-control border border-danger/25 bg-danger-soft p-4" role="alert">
+          <p class="font-semibold text-danger">{{ problem()?.title }}</p>
+          <p class="mt-1 text-sm text-content-muted">{{ problem()?.detail }}</p>
+        </div>
+      }
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="professor-first-name" class="form-label">Nombres</label>
+          <input
+            id="professor-first-name"
+            class="form-control"
+            autocomplete="off"
+            [formField]="professorForm.firstName"
+          />
+          @if (
+            errorFor(
+              'firstName',
+              professorForm.firstName().touched(),
+              professorForm.firstName().errors()[0]?.message
+            );
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+        <div>
+          <label for="professor-last-name" class="form-label">Apellidos</label>
+          <input
+            id="professor-last-name"
+            class="form-control"
+            autocomplete="off"
+            [formField]="professorForm.lastName"
+          />
+          @if (
+            errorFor(
+              'lastName',
+              professorForm.lastName().touched(),
+              professorForm.lastName().errors()[0]?.message
+            );
+            as message
+          ) {
+            <p class="form-error">{{ message }}</p>
+          }
+        </div>
+      </div>
+
+      @if (assignedCourseCount() !== null) {
+        <div class="mt-6 rounded-control bg-brand-50 p-4 text-sm text-brand-800">
+          Este profesor tiene <strong>{{ assignedCourseCount() }}</strong> materias asignadas. Para
+          desactivarlo, primero debe quedar sin asignaciones activas.
+        </div>
+      }
+
+      <div class="mt-7 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+        <a routerLink="/admin/professors" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary" [disabled]="professorForm().submitting()">
+          <sm-icon
+            [name]="professorForm().submitting() ? 'loader-circle' : 'save'"
+            size="17"
+            [class.animate-spin]="professorForm().submitting()"
+            aria-hidden="true"
+          />
+          {{ professorForm().submitting() ? 'Guardando…' : 'Guardar profesor' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

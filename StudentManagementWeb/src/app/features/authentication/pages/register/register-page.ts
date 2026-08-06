@@ -9,7 +9,7 @@ import {
   submit,
 } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { NgIcon } from '@ng-icons/core';
+import { Icon } from '@shared/ui/icon';
 
 import { ApiProblemDetails, RegisterStudentRequest } from '@core/api/api.models';
 import { fieldError, problemFromError } from '@core/api/api-error';
@@ -27,7 +27,7 @@ const INITIAL_REGISTRATION: RegisterStudentRequest = {
 
 @Component({
   selector: 'sm-register-page',
-  imports: [FormField, NgIcon, RouterLink],
+  imports: [FormField, Icon, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register-page.html',
   styleUrl: './register-page.css',

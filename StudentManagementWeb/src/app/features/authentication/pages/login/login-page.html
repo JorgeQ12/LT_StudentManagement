@@ -8,12 +8,7 @@
       class="mt-6 flex gap-3 rounded-control border border-warning/30 bg-warning-soft p-4 text-sm text-content"
       role="alert"
     >
-      <ng-icon
-        name="lucideClock"
-        size="19"
-        class="mt-0.5 shrink-0 text-warning"
-        aria-hidden="true"
-      />
+      <sm-icon name="clock" [size]="19" class="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
       <p>Tu sesión terminó por seguridad. Ingresa nuevamente para continuar.</p>
     </div>
   }
@@ -31,9 +26,9 @@
     <div>
       <label for="email" class="form-label">Correo electrónico</label>
       <div class="relative">
-        <ng-icon
-          name="lucideMail"
-          size="18"
+        <sm-icon
+          name="mail"
+          [size]="18"
           class="pointer-events-none absolute top-3 left-3.5 text-content-muted"
           aria-hidden="true"
         />
@@ -55,9 +50,9 @@
     <div>
       <label for="password" class="form-label">Contraseña</label>
       <div class="relative">
-        <ng-icon
-          name="lucideShieldCheck"
-          size="18"
+        <sm-icon
+          name="shield-check"
+          [size]="18"
           class="pointer-events-none absolute top-3 left-3.5 text-content-muted"
           aria-hidden="true"
         />
@@ -78,11 +73,11 @@
 
     <button type="submit" class="btn-primary w-full" [disabled]="loginForm().submitting()">
       @if (loginForm().submitting()) {
-        <ng-icon name="lucideLoaderCircle" size="18" class="animate-spin" aria-hidden="true" />
+        <sm-icon name="loader-circle" [size]="18" [spin]="true" aria-hidden="true" />
         Ingresando…
       } @else {
         Ingresar al portal
-        <ng-icon name="lucideChevronRight" size="18" aria-hidden="true" />
+        <sm-icon name="chevron-right" [size]="18" aria-hidden="true" />
       }
     </button>
   </form>
