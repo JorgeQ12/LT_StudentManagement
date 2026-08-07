@@ -1,0 +1,18 @@
+.pagination,
+.pagination__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.pagination {
+  justify-content: space-between;
+  padding-top: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.pagination p {
+  margin: 0;
+}

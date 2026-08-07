@@ -1,0 +1,58 @@
+<app-form-modal [title]="id ? 'Editar curso' : 'Nuevo curso'" closeLink="/admin/courses">
+  <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-field form-field--full">
+      <label class="form-label" for="course-form-program">Programa académico</label
+      ><app-custom-select
+        id="course-form-program"
+        formControlName="academicProgramId"
+        placeholder="Selecciona un programa"
+        [options]="programOptions()"
+      />
+      @if (controlError(form.controls.academicProgramId, 'El programa')) {
+        <span class="form-error">{{
+          controlError(form.controls.academicProgramId, 'El programa')
+        }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="course-form-code">Código</label
+      ><input id="course-form-code" class="form-control" formControlName="code" />
+      @if (controlError(form.controls.code, 'El código')) {
+        <span class="form-error">{{ controlError(form.controls.code, 'El código') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="course-form-name">Nombre</label
+      ><input id="course-form-name" class="form-control" formControlName="name" />
+      @if (controlError(form.controls.name, 'El nombre')) {
+        <span class="form-error">{{ controlError(form.controls.name, 'El nombre') }}</span>
+      }
+    </div>
+    @if (id) {
+      <div class="form-field form-field--full assignment">
+        <div>
+          <label class="form-label" for="course-professor">Profesor asignado</label
+          ><app-custom-select
+            id="course-professor"
+            formControlName="professorId"
+            placeholder="Selecciona un profesor"
+            [options]="professorOptions()"
+          />
+        </div>
+        <app-button
+          type="button"
+          variant="secondary"
+          icon="register"
+          [disabled]="!form.controls.professorId.value"
+          [loading]="facade.mutationLoading()"
+          (click)="assign()"
+          >Asignar profesor</app-button
+        >
+      </div>
+    }
+    <div class="form-actions">
+      <a routerLink="/admin/courses"><app-button variant="ghost" icon="cancel">Cancelar</app-button></a
+      ><app-button type="submit" icon="save" [loading]="facade.mutationLoading()">Guardar curso</app-button>
+    </div>
+  </form>
+</app-form-modal>

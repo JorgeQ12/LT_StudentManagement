@@ -1,0 +1,24 @@
+<nav class="pagination" aria-label="Paginación">
+  <p>{{ from() }}–{{ to() }} de {{ totalCount() }}</p>
+  <div class="pagination__actions">
+    <app-button
+      variant="outline"
+      size="small"
+      icon="chevronLeft"
+      [disabled]="pageNumber() <= 1"
+      (click)="pageChange.emit(pageNumber() - 1)"
+    >
+      Anterior
+    </app-button>
+    <span>Página {{ pageNumber() }} de {{ totalPages() }}</span>
+    <app-button
+      variant="outline"
+      size="small"
+      icon="chevronRight"
+      [disabled]="pageNumber() >= totalPages()"
+      (click)="pageChange.emit(pageNumber() + 1)"
+    >
+      Siguiente
+    </app-button>
+  </div>
+</nav>

@@ -1,0 +1,55 @@
+.loader {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  padding: var(--spacing-md);
+  place-items: center;
+  background: rgb(0 0 0 / 52%);
+  backdrop-filter: blur(4px);
+}
+
+.loader__dialog {
+  display: grid;
+  width: min(100%, 24rem);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  align-items: center;
+  justify-items: center;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 24%);
+  text-align: center;
+}
+
+.loader__dialog div:last-child {
+  display: grid;
+  gap: var(--spacing-2xs);
+  justify-items: center;
+}
+
+.loader__dialog strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.loader__dialog span {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.loader__spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: loader-spin 800ms linear infinite;
+}
+
+@keyframes loader-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

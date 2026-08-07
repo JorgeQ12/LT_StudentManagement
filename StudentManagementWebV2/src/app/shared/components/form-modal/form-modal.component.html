@@ -1,0 +1,15 @@
+<div class="form-modal__backdrop">
+  <section class="form-modal" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" role="dialog" aria-modal="true">
+    <header class="form-modal__header">
+      <div class="form-modal__title-group">
+        <span class="form-modal__mark" aria-hidden="true"><app-icon name="school" size="1.15rem" /></span>
+        <div>
+          <span>Gestión académica</span>
+          <h1>{{ title() }}</h1>
+        </div>
+      </div>
+      <a [routerLink]="closeLink()" aria-label="Cerrar formulario"><app-icon name="cancel" /></a>
+    </header>
+    <div class="form-modal__body"><ng-content /></div>
+  </section>
+</div>

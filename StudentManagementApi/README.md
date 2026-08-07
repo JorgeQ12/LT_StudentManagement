@@ -62,6 +62,8 @@ Development CORS accepts HTTP and HTTPS loopback origins on any port. Browser cl
 
 Swagger UI is available at `/swagger`, and its OpenAPI document is exposed at `/openapi/v1.json`.
 
+Development infrastructure and deployment are managed with Terraform. See [`docs/terraform-development.md`](docs/terraform-development.md) for the one-time AWS and GitHub configuration.
+
 ## Authentication and CSRF flow
 
 1. Call `GET /api/Authentication/GenerateAntiforgeryToken`.

@@ -1,0 +1,125 @@
+<div class="date-picker">
+  <button
+    class="date-picker__trigger"
+    type="button"
+    [id]="id()"
+    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="id() + '-calendar'"
+    aria-haspopup="dialog"
+    (click)="toggle()"
+    (keydown)="handleKeydown($event)"
+    (blur)="markTouched()"
+  >
+    <span [class.date-picker__placeholder]="!displayValue()">
+      {{ displayValue() || placeholder() }}
+    </span>
+    <app-icon name="calendar" size="1.05rem" />
+  </button>
+
+  @if (open()) {
+    <section
+      class="date-picker__calendar"
+      [id]="id() + '-calendar'"
+      role="dialog"
+      aria-modal="false"
+      aria-label="Calendario"
+      tabindex="-1"
+      (keydown)="handleKeydown($event)"
+    >
+      <header class="date-picker__header">
+        <button
+          type="button"
+          aria-label="Periodo anterior"
+          [disabled]="!canNavigate(-1)"
+          (click)="navigate(-1)"
+        >
+          <app-icon name="chevronLeft" size="1rem" />
+        </button>
+        <button
+          class="date-picker__period"
+          type="button"
+          [disabled]="view() === 'years'"
+          (click)="changeHeaderView()"
+        >
+          @switch (view()) {
+            @case ('days') {
+              {{ monthLabel() }}
+            }
+            @case ('months') {
+              {{ viewYear() }}
+            }
+            @case ('years') {
+              {{ yearRangeStart() }}–{{ yearRangeStart() + 11 }}
+            }
+          }
+        </button>
+        <button
+          type="button"
+          aria-label="Periodo siguiente"
+          [disabled]="!canNavigate(1)"
+          (click)="navigate(1)"
+        >
+          <app-icon name="chevronRight" size="1rem" />
+        </button>
+      </header>
+
+      @switch (view()) {
+        @case ('days') {
+          <div class="date-picker__weekdays" aria-hidden="true">
+            @for (weekday of weekDays; track weekday) {
+              <span>{{ weekday }}</span>
+            }
+          </div>
+          <div class="date-picker__days" role="grid" [attr.aria-label]="monthLabel()">
+            @for (day of calendarDays(); track day.iso) {
+              <button
+                type="button"
+                role="gridcell"
+                [class.is-outside]="day.outside"
+                [class.is-today]="day.today"
+                [class.is-selected]="day.selected"
+                [disabled]="day.disabled"
+                [attr.aria-label]="day.label"
+                [attr.aria-selected]="day.selected"
+                (pointerdown)="$event.preventDefault()"
+                (click)="chooseDay(day)"
+              >
+                {{ day.number }}
+              </button>
+            }
+          </div>
+        }
+        @case ('months') {
+          <div class="date-picker__choice-grid">
+            @for (month of months; track month; let index = $index) {
+              <button
+                type="button"
+                [class.is-selected]="viewMonth() === index"
+                [disabled]="monthDisabled(index)"
+                (click)="chooseMonth(index)"
+              >
+                {{ month.slice(0, 3) }}
+              </button>
+            }
+          </div>
+        }
+        @case ('years') {
+          <div class="date-picker__choice-grid">
+            @for (year of yearRange(); track year) {
+              <button
+                type="button"
+                [class.is-selected]="viewYear() === year"
+                [disabled]="yearDisabled(year)"
+                (click)="chooseYear(year)"
+              >
+                {{ year }}
+              </button>
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

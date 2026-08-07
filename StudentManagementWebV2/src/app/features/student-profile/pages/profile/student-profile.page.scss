@@ -1,0 +1,20 @@
+.danger-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border: 1px solid color-mix(in srgb, var(--color-error), transparent 55%);
+  border-radius: var(--radius-lg);
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-error-soft);
+}
+.danger-zone h2 {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-lg);
+  color: var(--color-error);
+}
+.danger-zone p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}

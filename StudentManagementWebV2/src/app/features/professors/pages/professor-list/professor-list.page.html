@@ -1,0 +1,85 @@
+<section >
+  <app-page-header
+    icon="professors"
+    eyebrow="Administración"
+    title="Profesores"
+    description="Administra el equipo docente y revisa su carga académica."
+    ><a routerLink="new"><app-button icon="add">Nuevo profesor</app-button></a></app-page-header
+  >
+  <div class="panel page-stack">
+    <form class="toolbar" [formGroup]="filters" (ngSubmit)="load(1)">
+      <div class="toolbar__filters">
+        <div class="form-field">
+          <label class="form-label" for="professor-search">Buscar</label
+          ><input
+            id="professor-search"
+            class="form-control"
+            formControlName="search"
+            placeholder="Nombre o apellido"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="professor-status">Estado</label
+          ><app-custom-select
+            id="professor-status"
+            formControlName="status"
+            [options]="statusOptions"
+          />
+        </div>
+      </div>
+      <app-button type="submit" variant="outline" icon="filter">Aplicar filtros</app-button>
+    </form>
+    @if (facade.listLoading()) {
+      <div class="skeleton" aria-label="Cargando profesores"></div>
+    } @else if (facade.page().items.length === 0) {
+      <app-empty-state
+        title="No hay profesores"
+        description="Crea el primer profesor o ajusta los filtros."
+      />
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Profesor</th>
+              <th>Cursos asignados</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (professor of facade.page().items; track professor.id) {
+              <tr>
+                <td>
+                  <strong>{{ professor.firstName }} {{ professor.lastName }}</strong>
+                </td>
+                <td>{{ professor.assignedCourseCount }}</td>
+                <td><app-status-badge [status]="professor.status" /></td>
+                <td>
+                  <div class="row-actions">
+                    <a [routerLink]="[professor.id, 'edit']"
+                      ><app-button variant="ghost" size="small" icon="edit">Editar</app-button></a
+                    ><app-button
+                      [variant]="professor.status === 'Active' ? 'danger' : 'outline'"
+                      size="small"
+                      icon="activate"
+                      (click)="facade.changeStatus(professor)"
+                      >{{ professor.status === 'Active' ? 'Desactivar' : 'Activar' }}</app-button
+                    >
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pagination
+        [pageNumber]="facade.page().pageNumber"
+        [pageSize]="facade.page().pageSize"
+        [totalCount]="facade.page().totalCount"
+        (pageChange)="load($event)"
+      />
+    }
+  </div>
+</section>
+<router-outlet />

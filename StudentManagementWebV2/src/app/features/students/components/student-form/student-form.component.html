@@ -1,0 +1,76 @@
+<app-form-modal [title]="id ? 'Editar estudiante' : 'Nuevo estudiante'" closeLink="/admin/students">
+  <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-field">
+      <label class="form-label" for="student-first-name">Nombres</label
+      ><input id="student-first-name" class="form-control" formControlName="firstName" />
+      @if (controlError(form.controls.firstName, 'Los nombres')) {
+        <span class="form-error">{{ controlError(form.controls.firstName, 'Los nombres') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="student-last-name">Apellidos</label
+      ><input id="student-last-name" class="form-control" formControlName="lastName" />
+      @if (controlError(form.controls.lastName, 'Los apellidos')) {
+        <span class="form-error">{{ controlError(form.controls.lastName, 'Los apellidos') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="student-document">Documento</label
+      ><input id="student-document" class="form-control" formControlName="documentNumber" />
+      @if (controlError(form.controls.documentNumber, 'El documento')) {
+        <span class="form-error">{{
+          controlError(form.controls.documentNumber, 'El documento')
+        }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="student-birth-date">Fecha de nacimiento</label
+      ><app-date-picker
+        id="student-birth-date"
+        formControlName="dateOfBirth"
+        placeholder="Selecciona la fecha"
+        [max]="maxBirthDate"
+      />
+      @if (controlError(form.controls.dateOfBirth, 'La fecha')) {
+        <span class="form-error">{{ controlError(form.controls.dateOfBirth, 'La fecha') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="student-phone">Teléfono</label
+      ><input id="student-phone" class="form-control" type="tel" formControlName="phoneNumber" />
+      @if (controlError(form.controls.phoneNumber, 'El teléfono')) {
+        <span class="form-error">{{ controlError(form.controls.phoneNumber, 'El teléfono') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="student-email">Correo</label
+      ><input id="student-email" class="form-control" type="email" formControlName="email" />
+      @if (controlError(form.controls.email, 'El correo')) {
+        <span class="form-error">{{ controlError(form.controls.email, 'El correo') }}</span>
+      }
+    </div>
+    @if (!id) {
+      <div class="form-field form-field--full">
+        <label class="form-label" for="student-password">Contraseña temporal</label
+        ><input
+          id="student-password"
+          class="form-control"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+        /><span class="form-hint">Mínimo 10 caracteres, con mayúscula, minúscula y número.</span>
+        @if (controlError(form.controls.password, 'La contraseña')) {
+          <span class="form-error">{{
+            controlError(form.controls.password, 'La contraseña')
+          }}</span>
+        }
+      </div>
+    }
+    <div class="form-actions">
+      <a routerLink="/admin/students"><app-button variant="ghost" icon="cancel">Cancelar</app-button></a
+      ><app-button type="submit" icon="save" [loading]="facade.mutationLoading()"
+        >Guardar estudiante</app-button
+      >
+    </div>
+  </form>
+</app-form-modal>

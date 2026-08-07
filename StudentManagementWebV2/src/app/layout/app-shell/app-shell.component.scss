@@ -1,0 +1,206 @@
+@use '../../../styles/abstracts/breakpoints' as breakpoints;
+
+.shell {
+  min-height: 100vh;
+}
+
+.shell__header {
+  position: fixed;
+  z-index: 50;
+  inset: 0 0 auto;
+  display: flex;
+  height: var(--header-height);
+  padding: 0 var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--color-surface);
+}
+
+.shell__menu-button {
+  margin-right: auto;
+  border: 0;
+  color: var(--color-text-primary);
+  background: transparent;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.shell__sidebar {
+  position: fixed;
+  z-index: 45;
+  inset: var(--header-height) auto 0 0;
+  width: min(86vw, var(--sidebar-width));
+  display: flex;
+  padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
+  border-right: 0;
+  flex-direction: column;
+  color: rgb(255 255 255 / 72%);
+  background: linear-gradient(180deg, #191919, #101010);
+  transform: translateX(-100%);
+  transition: transform var(--transition-fast);
+}
+
+.shell__sidebar--open {
+  transform: translateX(0);
+}
+
+.shell__section-label {
+  margin: var(--spacing-xl) var(--spacing-sm) var(--spacing-sm);
+  color: rgb(255 255 255 / 42%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shell__sidebar-header {
+  display: flex;
+  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-sm);
+  align-items: center;
+  color: white;
+}
+
+.shell__sidebar-header div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.shell__sidebar-header small {
+  color: rgb(255 255 255 / 48%);
+  font-size: var(--font-size-xs);
+}
+
+.shell__sidebar-header strong {
+  font-size: var(--font-size-sm);
+}
+
+.shell__sidebar-mark {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: var(--radius-md);
+  place-items: center;
+  background: rgb(255 255 255 / 8%);
+}
+
+.shell__sidebar nav {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.shell__sidebar a {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+  align-items: center;
+  color: rgb(255 255 255 / 62%);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.shell__sidebar a:hover,
+.shell__sidebar a.is-active {
+  color: white;
+  background: rgb(255 255 255 / 12%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+
+.shell__sidebar a.is-active app-icon {
+  color: white;
+}
+
+.shell__account {
+  display: flex;
+  margin-top: auto;
+  padding: var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.shell__account-identity {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.shell__account-identity > span:last-child {
+  overflow: hidden;
+  color: rgb(255 255 255 / 62%);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell__account-avatar {
+  display: grid;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  place-items: center;
+  color: white;
+  background: rgb(255 255 255 / 12%);
+}
+
+.shell__account button {
+  display: flex;
+  width: auto;
+  padding: var(--spacing-xs);
+  border: 0;
+  gap: var(--spacing-xs);
+  align-items: center;
+  color: rgb(255 255 255 / 52%);
+  background: transparent;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.shell__account button:hover {
+  color: white;
+}
+
+.shell__scrim {
+  position: fixed;
+  z-index: 40;
+  inset: var(--header-height) 0 0;
+  border: 0;
+  background: var(--color-overlay);
+}
+
+.shell__content {
+  min-height: 100vh;
+  padding: calc(var(--header-height) + var(--spacing-lg)) var(--spacing-md) var(--spacing-xl);
+}
+
+@include breakpoints.tablet-up {
+  .shell__header {
+    display: none;
+  }
+
+  .shell__menu-button {
+    display: none;
+  }
+
+  .shell__sidebar {
+    inset: 0 auto 0 0;
+    transform: none;
+  }
+
+  .shell__scrim {
+    display: none;
+  }
+
+  .shell__content {
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl)
+      calc(var(--sidebar-width) + var(--spacing-xl));
+  }
+}

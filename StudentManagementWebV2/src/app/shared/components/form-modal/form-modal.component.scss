@@ -1,0 +1,101 @@
+.form-modal__backdrop {
+  position: fixed;
+  z-index: 1050;
+  inset: 0;
+  display: grid;
+  padding: var(--spacing-md);
+  place-items: center;
+  background: rgb(0 0 0 / 48%);
+  backdrop-filter: blur(3px);
+}
+
+.form-modal {
+  width: min(100%, 39rem);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 0;
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  box-shadow: 0 2rem 5rem rgb(0 0 0 / 32%);
+}
+
+.form-modal__header {
+  display: flex;
+  padding: var(--spacing-md) var(--spacing-lg);
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  background: linear-gradient(135deg, #181818, #303030);
+  border-radius: 1.25rem 1.25rem 0 0;
+}
+
+.form-modal__title-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.form-modal__title-group > div {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.form-modal__mark {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-right: var(--spacing-xs);
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: var(--radius-md);
+  place-items: center;
+  color: white;
+  background: rgb(255 255 255 / 10%);
+}
+
+.form-modal__header span {
+  color: rgb(255 255 255 / 62%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.form-modal__header h1 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.form-modal__header a {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(255 255 255 / 36%);
+  border-radius: 50%;
+  place-items: center;
+  color: white;
+  text-decoration: none;
+  background: rgb(255 255 255 / 8%);
+}
+
+.form-modal__body {
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+  background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+}
+
+:host ::ng-deep .form-modal__form {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:host ::ng-deep .form-modal__form .form-actions {
+  width: calc(100% + (var(--spacing-lg) * 2));
+  grid-column: 1 / -1;
+  margin: var(--spacing-md) calc(var(--spacing-lg) * -1) calc(var(--spacing-lg) * -1);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  justify-content: flex-end;
+  background: linear-gradient(180deg, #f6f6f6, #ededed);
+}

@@ -1,0 +1,89 @@
+<section >
+  <app-page-header
+    icon="students"
+    eyebrow="Administración"
+    title="Estudiantes"
+    description="Gestiona las cuentas estudiantiles y sus datos de contacto."
+    ><a routerLink="new"><app-button icon="add">Nuevo estudiante</app-button></a></app-page-header
+  >
+  <div class="panel page-stack">
+    <form class="toolbar" [formGroup]="filters" (ngSubmit)="load(1)">
+      <div class="toolbar__filters">
+        <div class="form-field">
+          <label class="form-label" for="student-search">Buscar</label
+          ><input
+            id="student-search"
+            class="form-control"
+            formControlName="search"
+            placeholder="Nombre, documento o correo"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="student-status">Estado</label
+          ><app-custom-select
+            id="student-status"
+            formControlName="status"
+            [options]="statusOptions"
+          />
+        </div>
+      </div>
+      <app-button type="submit" variant="outline" icon="filter">Aplicar filtros</app-button>
+    </form>
+    @if (facade.listLoading()) {
+      <div class="skeleton" aria-label="Cargando estudiantes"></div>
+    } @else if (facade.page().items.length === 0) {
+      <app-empty-state
+        title="No hay estudiantes"
+        description="Crea el primer estudiante o ajusta los filtros."
+      />
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Estudiante</th>
+              <th>Documento</th>
+              <th>Contacto</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (student of facade.page().items; track student.id) {
+              <tr>
+                <td>
+                  <strong>{{ student.firstName }} {{ student.lastName }}</strong>
+                </td>
+                <td>{{ student.documentNumber }}</td>
+                <td>
+                  {{ student.email }}<br /><span class="muted">{{ student.phoneNumber }}</span>
+                </td>
+                <td><app-status-badge [status]="student.status" /></td>
+                <td>
+                  <div class="row-actions">
+                    <a [routerLink]="[student.id, 'edit']"
+                      ><app-button variant="ghost" size="small" icon="edit">Editar</app-button></a
+                    ><app-button
+                      [variant]="student.status === 'Active' ? 'danger' : 'outline'"
+                      size="small"
+                      icon="activate"
+                      (click)="facade.changeStatus(student)"
+                      >{{ student.status === 'Active' ? 'Desactivar' : 'Activar' }}</app-button
+                    >
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pagination
+        [pageNumber]="facade.page().pageNumber"
+        [pageSize]="facade.page().pageSize"
+        [totalCount]="facade.page().totalCount"
+        (pageChange)="load($event)"
+      />
+    }
+  </div>
+</section>
+<router-outlet />

@@ -1,0 +1,83 @@
+@use '../../../../../styles/abstracts/breakpoints' as breakpoints;
+
+.auth-shell {
+  display: grid;
+  min-height: 100vh;
+  background: var(--color-surface);
+}
+
+.auth-shell__story {
+  position: relative;
+  display: none;
+  padding: var(--spacing-2xl);
+  overflow: hidden;
+  color: white;
+  background: var(--color-primary);
+}
+
+.auth-shell__message {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  justify-self: start;
+  max-width: 36rem;
+  text-align: left;
+}
+
+.auth-shell__message p {
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.auth-shell__message h1 {
+  max-width: 32rem;
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-2xl);
+  line-height: 1.05;
+}
+
+.auth-shell__message span {
+  color: rgb(255 255 255 / 82%);
+  font-size: var(--font-size-lg);
+}
+
+.auth-shell__pattern {
+  position: absolute;
+  width: 28rem;
+  height: 28rem;
+  right: -8rem;
+  bottom: -10rem;
+  border: 5rem solid rgb(255 255 255 / 5%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5rem rgb(255 255 255 / 4%);
+}
+
+.auth-shell__form {
+  display: grid;
+  min-height: 100vh;
+  padding: var(--spacing-xl) var(--spacing-md);
+  place-items: center;
+  overflow-y: auto;
+}
+
+.auth-shell__form-content {
+  display: grid;
+  width: min(100%, 44rem);
+  gap: var(--spacing-xl);
+  justify-items: center;
+}
+
+@include breakpoints.desktop-up {
+  .auth-shell {
+    grid-template-columns: minmax(28rem, 1fr) minmax(36rem, 1fr);
+  }
+
+  .auth-shell__story {
+    display: grid;
+  }
+
+  .auth-shell__form {
+    padding: var(--spacing-2xl);
+  }
+
+}

@@ -1,0 +1,29 @@
+.error-page {
+  display: grid;
+  min-height: 100vh;
+  padding: var(--spacing-xl);
+  place-content: center;
+  place-items: center;
+  text-align: center;
+}
+
+.error-page p {
+  margin-bottom: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.error-page h1 {
+  margin-bottom: var(--spacing-xs);
+}
+
+.error-page span {
+  max-width: 34rem;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-secondary);
+}
+
+.error-page a {
+  text-decoration: none;
+}

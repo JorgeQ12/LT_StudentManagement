@@ -1,0 +1,90 @@
+<section >
+  <app-page-header
+    icon="programs"
+    eyebrow="Administración"
+    title="Programas académicos"
+    description="Gestiona la oferta académica disponible para estudiantes."
+  >
+    <a routerLink="new"><app-button icon="add">Nuevo programa</app-button></a>
+  </app-page-header>
+  <div class="panel page-stack">
+    <form class="toolbar" [formGroup]="filters" (ngSubmit)="load(1)">
+      <div class="toolbar__filters">
+        <div class="form-field">
+          <label class="form-label" for="program-search">Buscar</label>
+          <input
+            id="program-search"
+            class="form-control"
+            formControlName="search"
+            placeholder="Código o nombre"
+          />
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="program-status">Estado</label>
+          <app-custom-select
+            id="program-status"
+            formControlName="status"
+            [options]="statusOptions"
+          />
+        </div>
+      </div>
+      <app-button type="submit" variant="outline" icon="filter">Aplicar filtros</app-button>
+    </form>
+    @if (facade.listLoading()) {
+      <div class="skeleton" aria-label="Cargando programas"></div>
+    } @else if (facade.page().items.length === 0) {
+      <app-empty-state
+        title="No hay programas"
+        description="Crea el primer programa o ajusta los filtros de búsqueda."
+      />
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Programa</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (program of facade.page().items; track program.id) {
+              <tr>
+                <td>
+                  <strong>{{ program.code }}</strong>
+                </td>
+                <td>{{ program.name }}</td>
+                <td>{{ program.description }}</td>
+                <td><app-status-badge [status]="program.status" /></td>
+                <td>
+                  <div class="row-actions">
+                    <a [routerLink]="[program.id, 'edit']"
+                      ><app-button variant="ghost" size="small" icon="edit">Editar</app-button></a
+                    >
+                    <app-button
+                      [variant]="program.status === 'Active' ? 'danger' : 'outline'"
+                      size="small"
+                      icon="activate"
+                      (click)="facade.changeStatus(program)"
+                    >
+                      {{ program.status === 'Active' ? 'Desactivar' : 'Activar' }}
+                    </app-button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pagination
+        [pageNumber]="facade.page().pageNumber"
+        [pageSize]="facade.page().pageSize"
+        [totalCount]="facade.page().totalCount"
+        (pageChange)="load($event)"
+      />
+    }
+  </div>
+</section>
+<router-outlet />

@@ -1,0 +1,98 @@
+<section >
+  <app-page-header
+    icon="enrollment"
+    eyebrow="Espacio estudiantil"
+    title="Mi matrícula"
+    description="Selecciona exactamente tres cursos de un mismo programa y con profesores diferentes."
+  >
+    @if (facade.hasEnrollment()) {
+      <app-button variant="danger" icon="cancel" (click)="facade.cancel()">Cancelar matrícula</app-button>
+    }
+  </app-page-header>
+  @if (facade.loading() && facade.programs().length === 0) {
+    <div class="skeleton" aria-label="Cargando matrícula"></div>
+  } @else {
+    <form class="page-stack" [formGroup]="form" (ngSubmit)="save()">
+      <div class="panel form-field">
+        <label class="form-label" for="enrollment-program">Programa académico</label
+        ><app-custom-select
+          id="enrollment-program"
+          formControlName="academicProgramId"
+          placeholder="Selecciona tu programa"
+          [options]="programOptions()"
+        />
+        @if (facade.hasEnrollment()) {
+          <span class="form-hint"
+            >El programa no puede cambiarse mientras la matrícula esté activa.</span
+          >
+        }
+      </div>
+      @if (!form.getRawValue().academicProgramId) {
+        <app-empty-state
+          title="Elige tu programa"
+          description="Después podrás seleccionar los tres cursos de tu matrícula."
+        />
+      } @else {
+        <div class="selection-summary">
+          <div>
+            <strong>{{ selectedCourseIds().length }} de 3 cursos</strong
+            ><span>9 créditos en total al completar la selección</span>
+          </div>
+          <div class="selection-summary__dots" aria-hidden="true">
+            @for (index of [0, 1, 2]; track index) {
+              <span [class.is-filled]="selectedCourseIds().length > index"></span>
+            }
+          </div>
+        </div>
+        <div class="course-grid">
+          @for (course of facade.courses(); track course.id) {
+            <button
+              type="button"
+              class="course-card"
+              [class.is-selected]="isSelected(course.id)"
+              [disabled]="!course.professorId"
+              (click)="toggleCourse(course)"
+              [attr.aria-pressed]="isSelected(course.id)"
+            >
+              <span class="course-card__code">{{ course.code }}</span
+              ><strong>{{ course.name }}</strong
+              ><span>{{ course.professorFullName ?? 'Sin profesor asignado' }}</span
+              ><small>{{ course.credits }} créditos</small>
+            </button>
+          }
+        </div>
+        <div class="form-actions">
+          <app-button
+            type="submit"
+            size="large"
+            icon="check"
+            [disabled]="selectedCourseIds().length !== 3"
+            [loading]="facade.saving()"
+            >{{ facade.hasEnrollment() ? 'Actualizar cursos' : 'Confirmar matrícula' }}</app-button
+          >
+        </div>
+      }
+    </form>
+    @if (facade.classmates().length) {
+      <section class="panel page-stack">
+        <h2>Compañeros por curso</h2>
+        <div class="classmates-grid">
+          @for (group of facade.classmates(); track group.courseId) {
+            <article>
+              <h3>{{ group.courseName }}</h3>
+              @if (group.classmates.length) {
+                <ul>
+                  @for (classmate of group.classmates; track classmate.fullName) {
+                    <li>{{ classmate.fullName }}</li>
+                  }
+                </ul>
+              } @else {
+                <p class="muted">Aún no hay otros compañeros.</p>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>
