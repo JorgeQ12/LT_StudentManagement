@@ -1,0 +1,30 @@
+<section >
+  <app-page-header
+    icon="dashboard"
+    eyebrow="Espacio estudiantil"
+    title="Tu semestre empieza aquí"
+    [description]="'Sesión activa como ' + (user()?.email ?? '')"
+  />
+  <div class="hero">
+    <div>
+      <span>9 créditos · 3 cursos</span>
+      <h2>Construye tu ruta académica</h2>
+      <p>
+        Selecciona tres cursos con profesores diferentes y consulta quiénes serán tus compañeros.
+      </p>
+      <a routerLink="enrollment"><app-button size="large" icon="enrollment">Gestionar mi matrícula</app-button></a>
+    </div>
+    <div class="hero__visual" aria-hidden="true"><span>01</span><span>02</span><span>03</span></div>
+  </div>
+  <div class="dashboard-grid">
+    <a routerLink="enrollment"
+      ><app-icon name="enrollment" size="1.35rem" /><strong>Matrícula</strong
+      ><span>Selecciona o actualiza tus tres cursos.</span
+      ><small>Ir a matrícula <app-icon name="arrowRight" size="0.9rem" /></small></a
+    ><a routerLink="profile"
+      ><app-icon name="profile" size="1.35rem" /><strong>Perfil</strong
+      ><span>Mantén al día tu información personal.</span
+      ><small>Ver mi perfil <app-icon name="arrowRight" size="0.9rem" /></small
+    ></a>
+  </div>
+</section>

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using StudentManagementApi.Application;
 using StudentManagementApi.Infrastructure.Persistence.SqlServer;
+using StudentManagementApi.Infrastructure.Persistence.SqlServer.Bootstrap;
 using StudentManagementApi.Infrastructure.Security;
 using StudentManagementApi.Presentation.Lambda.Antiforgery;
 using StudentManagementApi.Presentation.Lambda.Cors;
@@ -22,6 +23,8 @@ internal static class LambdaDependencyInjection
 
         services.AddApplication();
         services.AddSqlServerPersistence(connectionString);
+        services.Configure<AdministratorBootstrapOptions>(
+            configuration.GetSection(AdministratorBootstrapOptions.SectionName));
         services.AddSecurityInfrastructure(configuration);
         services.AddProblemDetails();
         services.AddExceptionHandler<ApiExceptionHandler>();

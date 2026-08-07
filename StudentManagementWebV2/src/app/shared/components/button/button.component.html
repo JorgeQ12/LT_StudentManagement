@@ -1,0 +1,16 @@
+<button
+  [type]="type()"
+  class="button"
+  [class]="'button button--' + variant() + ' button--' + size() + (fullWidth() ? ' button--full-width' : '')"
+  [disabled]="disabled() || loading()"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-busy]="loading()"
+>
+  @if (icon(); as buttonIcon) {
+    <app-icon [name]="buttonIcon" size="1.05em" />
+  }
+  @if (loading()) {
+    <span class="button__spinner" aria-hidden="true"></span>
+  }
+  <span><ng-content /></span>
+</button>

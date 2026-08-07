@@ -27,7 +27,7 @@ internal sealed class CoursesPageSpec : Specification<Course>
                 && (status == null || course.Status == status.Value)
                 && (academicProgramId == null
                     || course.AcademicProgramId == academicProgramId.Value))
-            .OrderBy(course => course.Code.Value)
+            .OrderBy(course => course.Code)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking();

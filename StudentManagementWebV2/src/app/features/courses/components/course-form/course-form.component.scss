@@ -1,0 +1,10 @@
+a {
+  text-decoration: none;
+}
+.assignment {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-secondary);
+}

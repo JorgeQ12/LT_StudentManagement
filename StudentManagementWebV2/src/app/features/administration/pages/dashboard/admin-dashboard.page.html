@@ -1,0 +1,31 @@
+<section class="admin-dashboard">
+  <header class="admin-dashboard__header">
+    <span class="admin-dashboard__icon"><app-icon name="dashboard" size="1.25rem" /></span>
+    <div>
+      <p>Administración</p>
+      <h1>Panel administrativo</h1>
+      <span>Gestiona la estructura académica y las cuentas del portal desde un solo espacio.</span>
+    </div>
+  </header>
+
+  <section class="admin-modules" aria-labelledby="admin-modules-title">
+    <div class="admin-modules__header">
+      <div>
+        <p>Gestión</p>
+        <h2 id="admin-modules-title">Accesos principales</h2>
+      </div>
+    </div>
+    <div class="resource-grid">
+      @for (resource of resources; track resource.route) {
+        <a [routerLink]="resource.route">
+          <span class="resource-card__icon"><app-icon [name]="resource.icon" size="1.2rem" /></span>
+          <div>
+            <strong>{{ resource.title }}</strong>
+            <p>{{ resource.description }}</p>
+          </div>
+          <app-icon class="resource-card__arrow" name="arrowRight" size="1rem" />
+        </a>
+      }
+    </div>
+  </section>
+</section>

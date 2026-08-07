@@ -1,0 +1,21 @@
+.badge {
+  display: inline-flex;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  align-items: center;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badge--active {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.badge--inactive,
+.badge--cancelled {
+  color: var(--color-error);
+  background: var(--color-error-soft);
+}
