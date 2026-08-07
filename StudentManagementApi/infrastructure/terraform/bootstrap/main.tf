@@ -54,7 +54,22 @@ resource "aws_iam_role" "github_deployer" {
   name = "student-management-development-terraform"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{ Effect = "Allow", Action = "sts:AssumeRoleWithWebIdentity", Principal = { Federated = aws_iam_openid_connect_provider.github.arn }, Condition = { StringEquals = { "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com", "token.actions.githubusercontent.com:sub" = "repo:JorgeQ12/LT_StudentManagement:environment:Development" } } }]
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
+      Condition = {
+        StringEquals = { "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com" }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:JorgeQ12/LT_StudentManagement:environment:Development",
+            "repo:JorgeQ12/LT_StudentManagement:ref:refs/heads/development",
+            "repo:JorgeQ12@77177063/LT_StudentManagement@1324539433:environment:Development",
+            "repo:JorgeQ12@77177063/LT_StudentManagement@1324539433:ref:refs/heads/development"
+          ]
+        }
+      }
+    }]
   })
 }
 
