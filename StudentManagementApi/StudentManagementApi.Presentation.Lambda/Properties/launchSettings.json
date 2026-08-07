@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "StudentManagementApi.Presentation.Lambda": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:60941;http://localhost:60942"
+    }
+  }
+}

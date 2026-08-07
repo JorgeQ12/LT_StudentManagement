@@ -1,3 +1,0 @@
-namespace StudentManagementApi.Presentation.WebApi.Contracts.AcademicCatalog;
-
-public sealed record GetActiveCoursesByAcademicProgramRequest(Guid AcademicProgramId);

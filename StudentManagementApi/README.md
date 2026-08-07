@@ -18,7 +18,7 @@ Student Management API is a .NET 10 and SQL Server backend for academic registra
 The dependency direction is inward:
 
 ```text
-Presentation.WebApi ──> Application <── Infrastructure.Persistence.SqlServer
+Presentation.Lambda --> Application <-- Infrastructure.Persistence.SqlServer
          │                  │          <── Infrastructure.Security
          └──────────────────┴─────────────> Domain
 ```
@@ -27,7 +27,7 @@ Presentation.WebApi ──> Application <── Infrastructure.Persistence.SqlSe
 - `Application` contains use cases organized vertically, repository ports, specifications, validators, Result factories, and security abstractions.
 - `Infrastructure.Persistence.SqlServer` implements EF Core contexts, repositories, configurations, migrations, transactions, concurrency, and catalog seeding.
 - `Infrastructure.Security` implements password hashing, JWT creation and validation, current-user access, and authentication cookies.
-- `Presentation.WebApi` contains thin controllers, explicit routes, Problem Details translation, antiforgery enforcement, and rate limiting.
+- `Presentation.Lambda` contains grouped Minimal API endpoints, AWS Lambda hosting, Problem Details translation, antiforgery enforcement, and rate limiting.
 - Unit tests are separated into domain and application projects.
 
 Commands inject only `IWriteRepository<TAggregate>` and run inside serializable transactions. Queries inject only `IReadRepository<TAggregate>` and use a dedicated no-tracking context. Neither `IQueryable`, `DbSet`, nor EF Core types leave Persistence.
@@ -46,32 +46,21 @@ Expected validation and business failures return `Ardalis.Result` with a stable 
 }
 ```
 
-All visible error text is stored in `ErrorMessages.es-CO.resx`. Handlers and controllers contain no response-message literals. Successful responses return a resource or `204 No Content` without decorative messages.
+All visible error text is stored in `ErrorMessages.es-CO.resx`. Handlers and endpoints contain no response-message literals. Successful responses return a resource or `204 No Content` without decorative messages.
 
-## Local configuration
+## Configuration
 
-All local configuration is read from the root `.env` file. Create it from the versioned template and replace the JWT signing-key placeholder:
+The Lambda uses the standard .NET configuration providers. The root `.env.example` documents the required environment variables; export equivalent values locally or configure them in Lambda before starting the API:
 
 ```powershell
-Copy-Item .env.example .env
-# Edit .env before starting the API.
-dotnet run --project StudentManagementApi.Presentation.WebApi
+dotnet run --project StudentManagementApi.Presentation.Lambda
 ```
 
-The real `.env` file is excluded from Git and Docker build contexts. Existing operating-system variables take precedence over values from `.env`, allowing deployments to inject secrets through their secret manager without changing the application. The API never applies migrations or inserts academic catalog data automatically; database migrations are an explicit operator action.
+The API never applies migrations or inserts academic catalog data automatically; database migrations are an explicit operator action. Deployment secrets must be injected through the AWS environment or its secret-management services.
 
 Development CORS accepts HTTP and HTTPS loopback origins on any port. Browser clients must send requests with credentials enabled because authentication and antiforgery use cookies. Non-development environments accept only origins configured through indexed `Cors__AllowedOrigins__N` variables.
 
-An administrator can optionally be provisioned in Development by setting these entries in `.env`:
-
-```dotenv
-BootstrapAdministrator__Email=administrator@example.com
-BootstrapAdministrator__Password=replace-with-a-secure-password
-```
-
-The administrator is created only when these variables are configured and an account with the same email does not already exist. No other data is inserted automatically. Production administrator provisioning should use the organization's controlled identity or operations process.
-
-Swagger UI is available at `/` in Development, and its OpenAPI document is exposed at `/openapi/v1.json`.
+Swagger UI is available at `/swagger`, and its OpenAPI document is exposed at `/openapi/v1.json`.
 
 ## Authentication and CSRF flow
 
@@ -95,7 +84,7 @@ The unit suites cover value objects, domain invariants, aggregate state transiti
 
 ## Database migrations
 
-Generate and apply migrations using the connection string loaded from `.env`:
+Generate and apply migrations using the configured connection string:
 
 ```powershell
 dotnet ef migrations add MigrationName --project StudentManagementApi.Infrastructure.Persistence.SqlServer --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer --context StudentManagementDbContext
