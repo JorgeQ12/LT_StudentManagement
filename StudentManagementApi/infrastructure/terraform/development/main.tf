@@ -211,7 +211,9 @@ resource "aws_lambda_permission" "api_gateway" {
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
-resource "aws_s3_bucket" "frontend" { bucket_prefix = "${local.name}-frontend-" }
+resource "aws_s3_bucket" "frontend" {
+  bucket_prefix = "sm-dev-frontend-"
+}
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
   block_public_acls = true
