@@ -76,8 +76,9 @@ resource "aws_vpc_endpoint" "secrets_manager" {
 }
 
 resource "random_password" "database" {
-  length  = 32
-  special = true
+  length           = 32
+  special          = true
+  override_special = "!#%*+-_=?"
 }
 
 resource "random_password" "jwt" {
