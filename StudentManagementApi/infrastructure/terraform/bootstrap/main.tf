@@ -78,7 +78,7 @@ resource "aws_iam_role_policy" "github_deployer" {
   role = aws_iam_role.github_deployer.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{ Effect = "Allow", Action = ["apigateway:*", "cloudfront:*", "ec2:*", "lambda:*", "logs:*", "rds:*", "secretsmanager:*", "s3:*", "iam:GetRole", "iam:CreateRole", "iam:DeleteRole", "iam:PassRole", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:TagRole", "iam:UntagRole", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies"], Resource = "*" }]
+    Statement = [{ Effect = "Allow", Action = ["apigateway:*", "cloudfront:*", "ec2:*", "lambda:*", "logs:*", "rds:*", "secretsmanager:*", "s3:*", "iam:GetRole", "iam:GetRolePolicy", "iam:CreateRole", "iam:DeleteRole", "iam:PassRole", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:TagRole", "iam:UntagRole", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies"], Resource = "*" }]
   })
 }
 
