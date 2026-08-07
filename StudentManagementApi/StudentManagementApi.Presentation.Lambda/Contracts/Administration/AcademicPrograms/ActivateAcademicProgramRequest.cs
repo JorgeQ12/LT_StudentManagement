@@ -1,0 +1,3 @@
+namespace StudentManagementApi.Presentation.Lambda.Contracts.Administration.AcademicPrograms;
+
+public sealed record ActivateAcademicProgramRequest(Guid AcademicProgramId);

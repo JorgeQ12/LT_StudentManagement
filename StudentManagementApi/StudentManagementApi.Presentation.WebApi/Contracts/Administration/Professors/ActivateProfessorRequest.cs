@@ -1,3 +1,0 @@
-namespace StudentManagementApi.Presentation.WebApi.Contracts.Administration.Professors;
-
-public sealed record ActivateProfessorRequest(Guid ProfessorId);

@@ -1,3 +1,0 @@
-namespace StudentManagementApi.Presentation.WebApi.Contracts.Administration.AcademicPrograms;
-
-public sealed record ActivateAcademicProgramRequest(Guid AcademicProgramId);
