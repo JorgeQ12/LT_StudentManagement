@@ -5,7 +5,7 @@ on:
     branches: [development]
     paths:
       - StudentManagementApi/**
-      - StudentManagementWebV2/**
+      - StudentManagementWeb/**
       - infrastructure/**
       - .github/workflows/development-deploy.yml
   workflow_dispatch:
@@ -28,10 +28,43 @@ jobs:
       TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
     steps:
       - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Detect deployment scope
+        id: changes
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          backend=false
+          frontend=false
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            backend=true
+            frontend=true
+          else
+            git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" | tee /tmp/changed-files.txt
+
+            if grep -Eq '^(StudentManagementApi/|infrastructure/|\.github/workflows/development-deploy\.yml$)' /tmp/changed-files.txt; then
+              backend=true
+            fi
+
+            if grep -Eq '^(StudentManagementWeb/|infrastructure/|\.github/workflows/development-deploy\.yml$)' /tmp/changed-files.txt; then
+              frontend=true
+            fi
+          fi
+
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+          echo "Backend deployment: $backend"
+          echo "Frontend deployment: $frontend"
       - uses: actions/setup-dotnet@v5.2.0
+        if: steps.changes.outputs.backend == 'true'
         with: { dotnet-version: 10.0.x }
       - uses: actions/setup-node@v6
-        with: { node-version: 24, cache: npm, cache-dependency-path: StudentManagementWebV2/package-lock.json }
+        if: steps.changes.outputs.frontend == 'true'
+        with: { node-version: 24, cache: npm, cache-dependency-path: StudentManagementWeb/package-lock.json }
       - uses: hashicorp/setup-terraform@v3
       - uses: aws-actions/configure-aws-credentials@v6.2.3
         with:
@@ -42,19 +75,24 @@ jobs:
       - name: Validate configuration
         run: test -n "$AWS_REGION" && test -n "$AWS_ROLE_ARN" && test -n "$TF_STATE_BUCKET"
       - name: Build Lambda package
+        if: steps.changes.outputs.backend == 'true'
         working-directory: StudentManagementApi
         run: |
           dotnet publish StudentManagementApi.Presentation.Lambda -c Release -r linux-x64 --self-contained false -o artifacts/lambda
           cd artifacts/lambda && zip -r ../student-management-api.zip .
       - name: Build frontend
-        working-directory: StudentManagementWebV2
+        if: steps.changes.outputs.frontend == 'true'
+        working-directory: StudentManagementWeb
         run: npm ci && npm run build
-      - name: Apply infrastructure
+      - name: Initialize Terraform state
         working-directory: infrastructure/terraform/development
-        run: |
-          terraform init -input=false -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=student-management/development/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="use_lockfile=true"
-          terraform apply -auto-approve -input=false -var="aws_region=$AWS_REGION" -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
+        run: terraform init -input=false -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=student-management/development/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="use_lockfile=true"
+      - name: Apply backend infrastructure
+        if: steps.changes.outputs.backend == 'true'
+        working-directory: infrastructure/terraform/development
+        run: terraform apply -auto-approve -input=false -var="aws_region=$AWS_REGION" -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
       - name: Initialize database and verify API
+        if: steps.changes.outputs.backend == 'true'
         working-directory: infrastructure/terraform/development
         run: |
           api_url=$(terraform output -raw api_url)
@@ -70,12 +108,18 @@ jobs:
           cat /tmp/api-response.json || true
           exit 1
       - name: Publish frontend
+        if: steps.changes.outputs.frontend == 'true'
         working-directory: infrastructure/terraform/development
         run: |
           bucket=$(terraform output -raw frontend_bucket_name)
           distribution=$(terraform output -raw cloudfront_distribution_id)
-          aws s3 sync ../../../StudentManagementWebV2/dist/student-management-web-v2/browser "s3://$bucket" --delete
+          aws s3 sync ../../../StudentManagementWeb/dist/student-management-web/browser "s3://$bucket" --delete
           aws cloudfront create-invalidation --distribution-id "$distribution" --paths "/*"
+      - name: Write deployment summary
+        working-directory: infrastructure/terraform/development
+        run: |
           echo "### Development" >> "$GITHUB_STEP_SUMMARY"
+          echo "Backend desplegado: ${{ steps.changes.outputs.backend }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Frontend desplegado: ${{ steps.changes.outputs.frontend }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Frontend: $(terraform output -raw frontend_url)" >> "$GITHUB_STEP_SUMMARY"
           echo "Swagger: $(terraform output -raw swagger_url)" >> "$GITHUB_STEP_SUMMARY"

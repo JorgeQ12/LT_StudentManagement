@@ -1,7 +1,6 @@
 using Ardalis.Result;
 using MediatR;
 using StudentManagementApi.Application.Common.Errors;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Common.Security;
 using StudentManagementApi.Application.Contracts;
@@ -20,10 +19,12 @@ internal sealed class GetCurrentStudentEnrollmentHandler(ICurrentUser currentUse
             return ApplicationResults.Forbidden<EnrollmentResponse>();
         }
 
-        var enrollment = await enrollmentRepository.FirstOrDefaultAsync(new ActiveEnrollmentByStudentSpec(currentUser.StudentId.Value), cancellationToken);
+        var response = await enrollmentRepository.FirstOrDefaultAsync(
+            new EnrollmentResponseByStudentSpec(currentUser.StudentId.Value),
+            cancellationToken);
 
-        return enrollment is null
+        return response is null
             ? ApplicationResults.NotFound<EnrollmentResponse>(ErrorCode.EnrollmentNotFound)
-            : Result<EnrollmentResponse>.Success(enrollment.ToResponse());
+            : Result<EnrollmentResponse>.Success(response);
     }
 }

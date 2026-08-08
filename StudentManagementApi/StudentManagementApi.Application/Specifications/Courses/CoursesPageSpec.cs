@@ -1,4 +1,5 @@
 using Ardalis.Specification;
+using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Domain;
 using StudentManagementApi.Domain.Abstractions;
 using StudentManagementApi.Domain.Courses;
@@ -6,7 +7,7 @@ using StudentManagementApi.Domain.ValueObjects;
 
 namespace StudentManagementApi.Application.Specifications;
 
-internal sealed class CoursesPageSpec : Specification<Course>
+internal sealed class CoursesPageSpec : Specification<Course, CourseResponse>
 {
     public CoursesPageSpec(
         int pageNumber,
@@ -18,9 +19,7 @@ internal sealed class CoursesPageSpec : Specification<Course>
         var normalizedSearch = SearchValueObject.Normalize(search);
         var courseCode = SearchValueObject.TryCreate(normalizedSearch, CourseCode.Create);
 
-        Query.Include(course => course.TeachingAssignment!)
-                .ThenInclude(assignment => assignment.Professor)
-            .Where(course =>
+        Query.Where(course =>
                 (normalizedSearch == null
                     || (courseCode != null && course.Code == courseCode)
                     || course.Name.Contains(normalizedSearch)
@@ -34,6 +33,20 @@ internal sealed class CoursesPageSpec : Specification<Course>
             .OrderBy(course => course.Code)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Select(course => new CourseResponse(
+                course.Id.Value,
+                course.AcademicProgramId.Value,
+                course.Code.Value,
+                course.Name,
+                course.Credits,
+                course.Status,
+                course.TeachingAssignment == null
+                    ? null
+                    : course.TeachingAssignment.ProfessorId.Value,
+                course.TeachingAssignment == null
+                    ? null
+                    : course.TeachingAssignment.Professor.FirstName + " " +
+                      course.TeachingAssignment.Professor.LastName));
     }
 }

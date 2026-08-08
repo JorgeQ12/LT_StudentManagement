@@ -1,25 +1,28 @@
-import { registerLocaleData } from '@angular/common';
-import localeEsCo from '@angular/common/locales/es-CO';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
-
-import {
-  antiforgeryInterceptor,
-  credentialsInterceptor,
-  sessionInterceptor,
-} from '@core/auth/auth.interceptors';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 
 import { routes } from './app.routes';
-
-registerLocaleData(localeEsCo);
+import {
+  credentialsAndAntiforgeryInterceptor,
+  sessionInterceptor,
+} from './core/auth/auth.interceptors';
+import { loadingInterceptor } from './core/loading/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
+    ),
     provideHttpClient(
-      withInterceptors([credentialsInterceptor, antiforgeryInterceptor, sessionInterceptor]),
+      withInterceptors([
+        credentialsAndAntiforgeryInterceptor,
+        sessionInterceptor,
+        loadingInterceptor,
+      ]),
     ),
   ],
 };

@@ -1,11 +1,12 @@
 using Ardalis.Specification;
+using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Domain;
 using StudentManagementApi.Domain.Programs;
 using StudentManagementApi.Domain.ValueObjects;
 
 namespace StudentManagementApi.Application.Specifications;
 
-internal sealed class AcademicProgramsPageSpec : Specification<AcademicProgram>
+internal sealed class AcademicProgramsPageSpec : Specification<AcademicProgram, AcademicProgramResponse>
 {
     public AcademicProgramsPageSpec(int pageNumber, int pageSize, string? search, CatalogStatus? status)
     {
@@ -21,6 +22,12 @@ internal sealed class AcademicProgramsPageSpec : Specification<AcademicProgram>
             .OrderBy(program => program.Name)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Select(program => new AcademicProgramResponse(
+                program.Id.Value,
+                program.Code.Value,
+                program.Name,
+                program.Description,
+                program.Status));
     }
 }

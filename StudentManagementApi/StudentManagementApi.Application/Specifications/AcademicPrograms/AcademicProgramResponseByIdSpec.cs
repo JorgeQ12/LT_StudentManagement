@@ -11,5 +11,10 @@ internal sealed class AcademicProgramResponseByIdSpec
     public AcademicProgramResponseByIdSpec(AcademicProgramId academicProgramId) =>
         Query.Where(program => program.Id == academicProgramId)
             .AsNoTracking()
-            .Select(program => new AcademicProgramResponse(program.Id.Value, program.Code.Value, program.Name, program.Description, program.Status));
+            .Select(program => new AcademicProgramResponse(
+                program.Id.Value,
+                program.Code.Value,
+                program.Name,
+                program.Description,
+                program.Status));
 }

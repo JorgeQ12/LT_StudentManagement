@@ -8,7 +8,7 @@ using StudentManagementApi.Infrastructure.Persistence.SqlServer.Context;
 
 namespace StudentManagementApi.Infrastructure.Persistence.SqlServer.Bootstrap;
 
-public sealed class AdministratorBootstrapper(StudentManagementDbContext dbContext, IPasswordHasher passwordHasher,
+public sealed class AdministratorBootstrapper(StudentManagementWriteDbContext dbContext, IPasswordHasher passwordHasher,
     IOptions<AdministratorBootstrapOptions> options, TimeProvider timeProvider)
 {
     public async Task CreateIfConfiguredAsync(CancellationToken cancellationToken = default)

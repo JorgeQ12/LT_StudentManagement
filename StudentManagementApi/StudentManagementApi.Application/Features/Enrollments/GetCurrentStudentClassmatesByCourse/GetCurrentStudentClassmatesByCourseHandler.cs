@@ -5,6 +5,7 @@ using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Common.Security;
 using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Application.Specifications;
+using StudentManagementApi.Domain.Abstractions;
 using StudentManagementApi.Domain.Enrollments;
 
 namespace StudentManagementApi.Application.Features.Enrollments.GetCurrentStudentClassmatesByCourse;
@@ -23,24 +24,28 @@ internal sealed class GetCurrentStudentClassmatesByCourseHandler(ICurrentUser cu
         }
 
         var studentId = currentUser.StudentId.Value;
-        var enrollment = await enrollmentRepository.FirstOrDefaultAsync(new ActiveEnrollmentByStudentSpec(studentId), cancellationToken);
+        var enrollment = await enrollmentRepository.FirstOrDefaultAsync(
+            new ActiveEnrollmentCoursesByStudentSpec(studentId),
+            cancellationToken);
 
         if (enrollment is null)
         {
             return ApplicationResults.NotFound<IReadOnlyCollection<ClassmatesByCourseResponse>>(ErrorCode.EnrollmentNotFound);
         }
 
-        var courseIds = enrollment.Courses.Select(item => item.CourseId).ToArray();
-        var classmates = await enrollmentRepository.ListAsync(new ActiveEnrollmentsByCourseIdsSpec(courseIds, studentId), cancellationToken);
+        var courseIds = enrollment.Courses.Select(course => new CourseId(course.CourseId)).ToArray();
+        var classmates = await enrollmentRepository.ListAsync(
+            new ActiveClassmateEnrollmentsByCourseIdsSpec(courseIds, studentId),
+            cancellationToken);
 
         var response = enrollment
-            .Courses.OrderBy(item => item.Course.Code.Value)
-            .Select(item => new ClassmatesByCourseResponse(
-                item.CourseId.Value,
-                item.Course.Name,
+            .Courses
+            .Select(course => new ClassmatesByCourseResponse(
+                course.CourseId,
+                course.CourseName,
                 classmates
-                    .Where(other => other.Courses.Any(course => course.CourseId == item.CourseId))
-                    .Select(other => new ClassmateResponse(other.Student.FullName))
+                    .Where(classmate => classmate.CourseIds.Contains(course.CourseId))
+                    .Select(classmate => new ClassmateResponse(classmate.FullName))
                     .OrderBy(classmate => classmate.FullName)
                     .ToArray()
             ))

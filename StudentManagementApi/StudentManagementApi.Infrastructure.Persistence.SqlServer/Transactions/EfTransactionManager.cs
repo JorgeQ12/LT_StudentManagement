@@ -5,7 +5,7 @@ using StudentManagementApi.Infrastructure.Persistence.SqlServer.Context;
 
 namespace StudentManagementApi.Infrastructure.Persistence.SqlServer.Transactions;
 
-internal sealed class EfTransactionManager(StudentManagementDbContext dbContext) : ITransactionManager
+internal sealed class EfTransactionManager(StudentManagementWriteDbContext dbContext) : ITransactionManager
 {
     public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken)
     {

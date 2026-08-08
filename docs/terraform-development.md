@@ -1,43 +1,197 @@
-# Development infrastructure with Terraform
+# Terraform y despliegue de Development
 
-This deploys only `development`: private S3 + CloudFront for Angular, API Gateway + Lambda, private RDS SQL Server Express, VPC, Secrets Manager and CloudWatch. CloudFront is the only public origin, so the frontend calls `/api` on the same HTTPS host and the strict authentication cookies work without a custom domain.
+Esta guía explica cómo crear la infraestructura inicial, conectar GitHub Actions con AWS mediante OIDC y desplegar el ambiente `Development`.
 
-The default database is `db.t3.micro`, the eligible Free Tier size for RDS SQL Server Express. The Secrets Manager interface VPC endpoint is not a Free Tier resource; it has a small hourly charge, normally covered by the new-account credits but still consumes them.
+## Qué se despliega
 
-## Bootstrap once
+```mermaid
+flowchart LR
+    CF["CloudFront"] --> S3["S3 privado · Angular"]
+    CF --> APIGW["API Gateway REST"]
+    APIGW --> Lambda["Lambda · .NET 10"]
+    Lambda --> RDS["RDS SQL Server privado"]
+    Lambda --> VPCE["VPC Endpoint"]
+    VPCE --> Secrets["Secrets Manager"]
+```
 
-Install Terraform and authenticate the AWS CLI as an administrator. From the repository root:
+El frontend y la API comparten el dominio HTTPS generado por CloudFront. Esto permite cookies `Secure` y `SameSite=Strict` sin configurar un dominio personalizado ni CORS entre sitios diferentes.
+
+El diagrama editable está en [`architecture/student-management-aws-architecture.drawio`](architecture/student-management-aws-architecture.drawio).
+
+## Dos raíces de Terraform
+
+### `terraform/bootstrap`
+
+Se ejecuta una sola vez y crea los recursos necesarios para que el despliegue normal pueda funcionar:
+
+- Bucket S3 privado para el estado remoto.
+- Versionado y cifrado AES-256 del estado.
+- Bloqueo de acceso público.
+- Proveedor OIDC de GitHub.
+- Rol IAM que GitHub Actions asume temporalmente.
+- Service-linked role de RDS.
+
+Este root utiliza estado local porque crea precisamente el bucket que después almacenará el estado remoto. Conserva de forma segura su archivo de estado local o migra también este root a un backend administrado después del bootstrap. El estado no debe subirse a Git.
+
+### `terraform/development`
+
+Administra la aplicación:
+
+- VPC `10.42.0.0/16`.
+- Dos subredes privadas `/20` en zonas de disponibilidad diferentes.
+- Security Groups de Lambda, RDS y el endpoint.
+- VPC Interface Endpoint de Secrets Manager.
+- RDS SQL Server Express.
+- Contraseñas aleatorias y secreto de aplicación.
+- Rol IAM y función Lambda.
+- API Gateway REST.
+- Bucket S3 privado, Origin Access Control y CloudFront.
+
+Su bloque `backend "s3" {}` se completa en cada ejecución con `-backend-config`, por lo que nombres de cuenta o región no quedan escritos en el repositorio.
+
+## Requisitos
+
+- Cuenta AWS con permisos administrativos para el bootstrap.
+- AWS CLI autenticada.
+- Terraform `>= 1.10`.
+- Repositorio GitHub `JorgeQ12/LT_StudentManagement`.
+- Rama `development`.
+
+Verifica la sesión:
+
+```powershell
+aws sts get-caller-identity
+terraform version
+```
+
+## Bootstrap inicial
+
+Desde la raíz del repositorio:
 
 ```powershell
 $AwsRegion = "us-east-1"
-$Account = aws sts get-caller-identity --query Account --output text
-$StateBucket = "student-management-tf-state-$Account-$AwsRegion"
+$AccountId = aws sts get-caller-identity --query Account --output text
+$StateBucket = "student-management-tf-state-$AccountId-$AwsRegion"
 
 terraform -chdir=infrastructure/terraform/bootstrap init
+terraform -chdir=infrastructure/terraform/bootstrap plan `
+  -var="aws_region=$AwsRegion" `
+  -var="state_bucket_name=$StateBucket"
+
 terraform -chdir=infrastructure/terraform/bootstrap apply `
   -var="aws_region=$AwsRegion" `
   -var="state_bucket_name=$StateBucket"
 ```
 
-If the account already has the GitHub OIDC provider, import it before applying instead of creating another provider.
+Obtén los valores que necesitará GitHub:
 
-## GitHub
+```powershell
+terraform -chdir=infrastructure/terraform/bootstrap output
+```
 
-Create the `Development` GitHub Environment and set these variables:
+Si la cuenta ya tiene el proveedor OIDC `token.actions.githubusercontent.com`, no intentes crear otro. Debes importar el existente al estado de este root o adaptar el Terraform para referenciarlo como `data`.
 
-| Variable | Value |
+## Configuración de GitHub
+
+En el repositorio crea un Environment llamado exactamente `Development`:
+
+`Settings → Environments → New environment → Development`
+
+Agrega estas **Environment variables**:
+
+| Variable | Origen |
 | --- | --- |
-| `AWS_REGION` | `us-east-1` |
-| `AWS_ROLE_ARN` | `github_deployer_role_arn` Terraform output |
-| `TF_STATE_BUCKET` | `state_bucket_name` Terraform output |
+| `AWS_REGION` | Región elegida, actualmente `us-east-1`. |
+| `AWS_ROLE_ARN` | Output `github_deployer_role_arn` del bootstrap. |
+| `TF_STATE_BUCKET` | Output `state_bucket_name` del bootstrap. |
 
-Push a change to `development`. The workflow builds the Lambda and Angular app, applies Terraform, uploads the Angular output to its private S3 bucket and invalidates CloudFront.
+No es necesario crear `AWS_ACCESS_KEY_ID` ni `AWS_SECRET_ACCESS_KEY`.
 
-## Database
+### Cómo funciona OIDC
 
-RDS is intentionally private. In Development, the existing API Lambda applies pending EF Core migrations during startup and then creates the initial administrator if it does not exist. The operation is idempotent and controlled by Terraform through `apply_database_migrations`.
+1. El workflow declara `id-token: write`.
+2. GitHub emite un token firmado para el job.
+3. `aws-actions/configure-aws-credentials` presenta el token a AWS STS.
+4. AWS verifica audiencia, repositorio, rama o environment usando la trust policy.
+5. STS entrega credenciales temporales al job.
+6. Las credenciales expiran al finalizar la ejecución.
 
-The administrator email defaults to `admin@studentmanagement.local`. Its generated password is stored only in the application secret. Retrieve it after deployment without printing it in GitHub Actions:
+La trust policy limita el rol al repositorio y al environment/rama configurados. La policy adjunta concede los permisos necesarios para administrar la infraestructura de Development.
+
+## Despliegue automático
+
+El workflow [`.github/workflows/development-deploy.yml`](../.github/workflows/development-deploy.yml) se activa con push a `development` cuando cambia API, frontend, infraestructura o el propio workflow.
+
+| Archivos modificados | Acción |
+| --- | --- |
+| `StudentManagementApi/**` | Compila Lambda, aplica Terraform y verifica la API. |
+| `StudentManagementWeb/**` | Compila Angular, sincroniza S3 e invalida CloudFront. |
+| `infrastructure/**` | Despliega backend y frontend. |
+| Workflow | Despliega backend y frontend. |
+| `workflow_dispatch` | Redeploy completo. |
+
+Aunque un despliegue sea solo de frontend, el job ejecuta `terraform init`: necesita leer los outputs del estado remoto para conocer el bucket de publicación y la distribución CloudFront. No ejecuta `terraform apply`.
+
+## Despliegue manual con Terraform
+
+Primero construye el paquete Lambda:
+
+```powershell
+dotnet publish `
+  StudentManagementApi/StudentManagementApi.Presentation.Lambda `
+  -c Release `
+  -r linux-x64 `
+  --self-contained false `
+  -o StudentManagementApi/artifacts/lambda
+```
+
+Genera el ZIP manteniendo los archivos en la raíz del paquete:
+
+```powershell
+Compress-Archive `
+  -Path StudentManagementApi/artifacts/lambda/* `
+  -DestinationPath StudentManagementApi/artifacts/student-management-api.zip `
+  -Force
+```
+
+Después inicializa el backend:
+
+```powershell
+$AwsRegion = "us-east-1"
+$StateBucket = "<output state_bucket_name>"
+
+terraform -chdir=infrastructure/terraform/development init `
+  -backend-config="bucket=$StateBucket" `
+  -backend-config="key=student-management/development/terraform.tfstate" `
+  -backend-config="region=$AwsRegion" `
+  -backend-config="use_lockfile=true"
+```
+
+Revisa y aplica:
+
+```powershell
+terraform -chdir=infrastructure/terraform/development plan `
+  -var="aws_region=$AwsRegion" `
+  -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
+
+terraform -chdir=infrastructure/terraform/development apply `
+  -var="aws_region=$AwsRegion" `
+  -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
+```
+
+Consulta las salidas:
+
+```powershell
+terraform -chdir=infrastructure/terraform/development output
+```
+
+## Base de datos e inicialización
+
+RDS es privado. La Lambda de Development aplica las migraciones EF Core pendientes durante su arranque porque Terraform configura `DatabaseInitialization__ApplyMigrations=true`.
+
+Después, `AdministratorBootstrapper` crea el administrador si todavía no existe. La operación es idempotente: múltiples arranques no crean cuentas duplicadas.
+
+El correo predeterminado es `admin@studentmanagement.local`. La contraseña se genera aleatoriamente y se almacena en Secrets Manager. Recupérala localmente:
 
 ```powershell
 $SecretName = terraform -chdir=infrastructure/terraform/development output -raw application_secret_name
@@ -50,12 +204,48 @@ $ApplicationSecret = aws secretsmanager get-secret-value `
 $ApplicationSecret.BootstrapAdministratorPassword
 ```
 
-For Production, migrations should run as an explicit deployment operation rather than during normal API startup.
+No imprimas este valor en GitHub Actions ni lo copies a documentación, issues o commits.
 
-RDS SQL Server and the VPC Secrets Manager endpoint are the primary recurring costs. Delete the development stack when no longer needed:
+## Estado remoto
 
-```powershell
-terraform -chdir=infrastructure/terraform/development destroy
-```
+El estado de Terraform contiene información sensible, incluidas las contraseñas generadas por `random_password`. Por eso el bucket tiene:
 
-Do not destroy the bootstrap state bucket unless you also want to lose Terraform state.
+- Acceso público bloqueado.
+- Cifrado en reposo.
+- Versionado para recuperación.
+- Bloqueo mediante archivo S3 durante operaciones concurrentes.
+
+Nunca edites el estado manualmente. Para adoptar un recurso existente utiliza `terraform import`; para renombrar direcciones usa bloques `moved` o `terraform state mv` con respaldo.
+
+## Costos y decisiones de Development
+
+- RDS utiliza `db.t3.medium`, 20 GB gp3 y SQL Server Express.
+- RDS es Single-AZ, conserva un día de backups y no tiene deletion protection.
+- El VPC Interface Endpoint de Secrets Manager genera un costo recurrente.
+- La distribución CloudFront, S3, Lambda y API Gateway dependen del uso.
+
+Estas decisiones priorizan una demostración funcional. No representan por sí solas una topología productiva.
+
+## Destruir toda la infraestructura de AWS
+
+Ejecuta manualmente el workflow **Destroy All AWS Infrastructure** desde GitHub Actions y escribe `DELETE-EVERYTHING` como confirmación.
+
+El proceso elimina primero el ambiente `development` y después los recursos de bootstrap. Esto incluye la base de datos y sus backups, Lambda, API Gateway, CloudFront, los buckets y todas sus versiones, VPC, secretos, logs, roles IAM y el proveedor OIDC de GitHub.
+
+La eliminación es permanente y no conserva snapshots. Después de ejecutarla, GitHub Actions ya no podrá desplegar hasta crear nuevamente el bootstrap y actualizar las variables del environment `Development`.
+
+## Diagnóstico rápido
+
+| Problema | Revisión |
+| --- | --- |
+| GitHub no puede asumir el rol | Nombre del Environment, `AWS_ROLE_ARN` y condiciones `sub`/`aud` de la trust policy. |
+| Terraform no encuentra el estado | `TF_STATE_BUCKET`, región, key y permisos S3. |
+| Lambda falla al iniciar | CloudWatch Logs, acceso al endpoint 443, secreto y conectividad RDS 1433. |
+| La API responde pero el frontend no cambia | Contenido del bucket e invalidación CloudFront. |
+| Una ruta Angular devuelve error | Respuestas personalizadas 403/404 de CloudFront hacia `/index.html`. |
+
+## Más información
+
+- [Guía técnica completa](guia-tecnica-completa.md)
+- [Guía del diagrama](architecture/student-management-aws-architecture.md)
+- [README principal](../README.md)

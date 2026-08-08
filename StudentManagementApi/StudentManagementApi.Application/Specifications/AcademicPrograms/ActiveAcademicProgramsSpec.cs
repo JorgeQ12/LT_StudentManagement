@@ -11,5 +11,10 @@ internal sealed class ActiveAcademicProgramsSpec : Specification<AcademicProgram
         Query.Where(program => program.Status == CatalogStatus.Active)
             .OrderBy(program => program.Name)
             .AsNoTracking()
-            .Select(program => new AcademicProgramResponse(program.Id.Value, program.Code.Value, program.Name, program.Description, program.Status));
+            .Select(program => new AcademicProgramResponse(
+                program.Id.Value,
+                program.Code.Value,
+                program.Name,
+                program.Description,
+                program.Status));
 }

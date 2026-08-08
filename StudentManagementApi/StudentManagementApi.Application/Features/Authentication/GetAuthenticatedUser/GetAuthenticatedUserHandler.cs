@@ -1,7 +1,6 @@
 using Ardalis.Result;
 using MediatR;
 using StudentManagementApi.Application.Common.Errors;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Common.Security;
 using StudentManagementApi.Application.Contracts;
@@ -20,10 +19,12 @@ internal sealed class GetAuthenticatedUserHandler(ICurrentUser currentUser, IRea
             return ApplicationResults.Unauthorized<AuthenticatedUserResponse>();
         }
 
-        var account = await accountRepository.FirstOrDefaultAsync(new AccountByIdSpec(currentUser.AccountId.Value), cancellationToken);
+        var response = await accountRepository.FirstOrDefaultAsync(
+            new AuthenticatedUserResponseByIdSpec(currentUser.AccountId.Value),
+            cancellationToken);
 
-        return account is null
+        return response is null
             ? ApplicationResults.Unauthorized<AuthenticatedUserResponse>()
-            : Result<AuthenticatedUserResponse>.Success(account.ToAuthenticatedUser());
+            : Result<AuthenticatedUserResponse>.Success(response);
     }
 }

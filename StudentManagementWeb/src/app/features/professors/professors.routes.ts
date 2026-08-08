@@ -1,39 +1,28 @@
 import { Routes } from '@angular/router';
+import { ProfessorsApiService } from './data-access/professors-api.service';
+import { ProfessorsFacade } from './facade/professors.facade';
 
-import { pendingChangesGuard } from '@core/navigation/pending-changes.guard';
-
-import { ProfessorsFacade } from './facades/professors.facade';
-
-export const PROFESSORS_ADMIN_ROUTES: Routes = [
+export const PROFESSORS_ROUTES: Routes = [
   {
     path: '',
-    providers: [ProfessorsFacade],
+    providers: [ProfessorsApiService, ProfessorsFacade],
+    loadComponent: () =>
+      import('./pages/professor-list/professor-list.page').then(
+        (module) => module.ProfessorListPage,
+      ),
     children: [
       {
-        path: '',
-        pathMatch: 'full',
-        title: 'Profesores | Portal Académico',
-        loadComponent: () =>
-          import('./pages/professors-list/professors-list-page').then(
-            (component) => component.ProfessorsListPage,
-          ),
-      },
-      {
         path: 'new',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Crear profesor | Portal Académico',
         loadComponent: () =>
-          import('./pages/professor-form/professor-form-page').then(
-            (component) => component.ProfessorFormPage,
+          import('./components/professor-form/professor-form.component').then(
+            (module) => module.ProfessorFormComponent,
           ),
       },
       {
         path: ':id/edit',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Editar profesor | Portal Académico',
         loadComponent: () =>
-          import('./pages/professor-form/professor-form-page').then(
-            (component) => component.ProfessorFormPage,
+          import('./components/professor-form/professor-form.component').then(
+            (module) => module.ProfessorFormComponent,
           ),
       },
     ],

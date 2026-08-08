@@ -2,47 +2,44 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
-
 import { AntiforgeryService } from './antiforgery.service';
-import { SessionState } from './session-state';
+import { SessionState } from './session-state.service';
 
-const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
-export const credentialsInterceptor: HttpInterceptorFn = (request, next) =>
-  next(request.clone({ withCredentials: true }));
-
-export const antiforgeryInterceptor: HttpInterceptorFn = (request, next) => {
-  if (!UNSAFE_METHODS.has(request.method.toUpperCase())) {
-    return next(request);
+export const credentialsAndAntiforgeryInterceptor: HttpInterceptorFn = (request, next) => {
+  const credentialRequest = request.clone({ withCredentials: true });
+  if (SAFE_METHODS.has(request.method) || request.url.endsWith('/GenerateAntiforgeryToken')) {
+    return next(credentialRequest);
   }
 
-  const antiforgery = inject(AntiforgeryService);
-  return antiforgery.ensureToken().pipe(
-    switchMap((token) =>
-      next(
-        request.clone({
-          setHeaders: { 'X-CSRF-TOKEN': token },
-        }),
+  return inject(AntiforgeryService)
+    .getToken()
+    .pipe(
+      switchMap((token) =>
+        next(
+          credentialRequest.clone({
+            setHeaders: { 'X-CSRF-TOKEN': token },
+          }),
+        ),
       ),
-    ),
-  );
+    );
 };
 
 export const sessionInterceptor: HttpInterceptorFn = (request, next) => {
-  const sessionState = inject(SessionState);
+  const session = inject(SessionState);
   const router = inject(Router);
-
   return next(request).pipe(
     catchError((error: unknown) => {
       if (
         error instanceof HttpErrorResponse &&
         error.status === 401 &&
-        sessionState.isAuthenticated()
+        session.isAuthenticated() &&
+        !request.url.endsWith('/Login')
       ) {
-        sessionState.clear();
-        void router.navigate(['/login'], { queryParams: { reason: 'expired' } });
+        session.clear();
+        void router.navigate(['/auth/login'], { queryParams: { sessionExpired: '1' } });
       }
-
       return throwError(() => error);
     }),
   );

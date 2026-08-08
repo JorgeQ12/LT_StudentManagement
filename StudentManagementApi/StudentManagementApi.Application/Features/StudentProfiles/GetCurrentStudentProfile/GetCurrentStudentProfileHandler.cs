@@ -1,7 +1,6 @@
 using Ardalis.Result;
 using MediatR;
 using StudentManagementApi.Application.Common.Errors;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Common.Security;
 using StudentManagementApi.Application.Contracts;
@@ -20,10 +19,12 @@ internal sealed class GetCurrentStudentProfileHandler(ICurrentUser currentUser, 
             return ApplicationResults.Forbidden<StudentResponse>();
         }
 
-        var student = await studentRepository.FirstOrDefaultAsync(new StudentByIdSpec(currentUser.StudentId.Value), cancellationToken);
+        var response = await studentRepository.FirstOrDefaultAsync(
+            new StudentResponseByIdSpec(currentUser.StudentId.Value),
+            cancellationToken);
 
-        return student is null
+        return response is null
             ? ApplicationResults.NotFound<StudentResponse>(ErrorCode.StudentNotFound)
-            : Result<StudentResponse>.Success(student.ToResponse());
+            : Result<StudentResponse>.Success(response);
     }
 }

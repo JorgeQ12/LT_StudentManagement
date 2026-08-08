@@ -18,7 +18,7 @@ await using (var scope = app.Services.CreateAsyncScope())
 {
     if (builder.Configuration.GetValue<bool>("DatabaseInitialization:ApplyMigrations"))
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<StudentManagementDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<StudentManagementWriteDbContext>();
         await dbContext.Database.MigrateAsync();
     }
 

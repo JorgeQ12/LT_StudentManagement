@@ -1,39 +1,26 @@
 import { Routes } from '@angular/router';
+import { AcademicProgramsApiService } from './data-access/academic-programs-api.service';
+import { AcademicProgramsFacade } from './facade/academic-programs.facade';
 
-import { pendingChangesGuard } from '@core/navigation/pending-changes.guard';
-
-import { AcademicProgramsFacade } from './facades/academic-programs.facade';
-
-export const ACADEMIC_PROGRAMS_ADMIN_ROUTES: Routes = [
+export const ACADEMIC_PROGRAMS_ROUTES: Routes = [
   {
     path: '',
-    providers: [AcademicProgramsFacade],
+    providers: [AcademicProgramsApiService, AcademicProgramsFacade],
+    loadComponent: () =>
+      import('./pages/program-list/program-list.page').then((module) => module.ProgramListPage),
     children: [
       {
-        path: '',
-        pathMatch: 'full',
-        title: 'Programas académicos | Portal Académico',
-        loadComponent: () =>
-          import('./pages/academic-programs-list/academic-programs-list-page').then(
-            (component) => component.AcademicProgramsListPage,
-          ),
-      },
-      {
         path: 'new',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Crear programa | Portal Académico',
         loadComponent: () =>
-          import('./pages/academic-program-form/academic-program-form-page').then(
-            (component) => component.AcademicProgramFormPage,
+          import('./components/program-form/program-form.component').then(
+            (module) => module.ProgramFormComponent,
           ),
       },
       {
         path: ':id/edit',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Editar programa | Portal Académico',
         loadComponent: () =>
-          import('./pages/academic-program-form/academic-program-form-page').then(
-            (component) => component.AcademicProgramFormPage,
+          import('./components/program-form/program-form.component').then(
+            (module) => module.ProgramFormComponent,
           ),
       },
     ],

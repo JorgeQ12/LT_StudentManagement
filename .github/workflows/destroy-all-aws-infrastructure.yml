@@ -1,0 +1,301 @@
+name: Destroy All AWS Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DELETE-EVERYTHING to permanently remove all project resources from AWS
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: student-management-development
+  cancel-in-progress: false
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: Development
+    timeout-minutes: 120
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      DEPLOYER_ROLE_NAME: student-management-development-terraform
+      RDS_SERVICE_ROLE_NAME: AWSServiceRoleForRDS
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Verify permanent deletion confirmation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$CONFIRMATION" != "DELETE-EVERYTHING" ]; then
+            echo "Confirmation does not match DELETE-EVERYTHING. Nothing was deleted."
+            exit 1
+          fi
+
+      - name: Validate configuration
+        run: test -n "$AWS_REGION" && test -n "$AWS_ROLE_ARN" && test -n "$TF_STATE_BUCKET"
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: student-management-destroy-all
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate exact AWS targets
+        id: targets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          account_id=$(aws sts get-caller-identity --query Account --output text)
+          expected_state_bucket="student-management-tf-state-${account_id}-${AWS_REGION}"
+
+          if [ "$TF_STATE_BUCKET" != "$expected_state_bucket" ]; then
+            echo "Unexpected Terraform state bucket: $TF_STATE_BUCKET"
+            echo "Expected: $expected_state_bucket"
+            exit 1
+          fi
+
+          echo "account_id=$account_id" >> "$GITHUB_OUTPUT"
+          echo "oidc_provider_arn=arn:aws:iam::${account_id}:oidc-provider/token.actions.githubusercontent.com" >> "$GITHUB_OUTPUT"
+
+      - name: Grant the deployer role one-time self-destruction permissions
+        shell: bash
+        run: |
+          cat > /tmp/self-destruct-policy.json <<'JSON'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:DeleteOpenIDConnectProvider",
+                  "iam:GetOpenIDConnectProvider",
+                  "iam:DeleteServiceLinkedRole",
+                  "iam:GetServiceLinkedRoleDeletionStatus"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+          JSON
+
+          aws iam put-role-policy \
+            --role-name "$DEPLOYER_ROLE_NAME" \
+            --policy-name destroy-bootstrap-resources \
+            --policy-document file:///tmp/self-destruct-policy.json
+
+      - name: Create Terraform destroy placeholder
+        run: |
+          mkdir -p /tmp/student-management-destroy
+          printf 'destroy' > /tmp/student-management-destroy/placeholder.txt
+          cd /tmp/student-management-destroy
+          zip -q /tmp/student-management-destroy-placeholder.zip placeholder.txt
+
+      - name: Initialize Terraform state
+        working-directory: infrastructure/terraform/development
+        run: terraform init -input=false -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=student-management/development/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="use_lockfile=true"
+
+      - name: Resolve and validate frontend bucket
+        id: development
+        working-directory: infrastructure/terraform/development
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          frontend_bucket=$(terraform output -raw frontend_bucket_name 2>/dev/null || true)
+          if [ -n "$frontend_bucket" ] && [[ "$frontend_bucket" != sm-dev-frontend-* ]]; then
+            echo "Unexpected frontend bucket: $frontend_bucket"
+            exit 1
+          fi
+
+          echo "frontend_bucket=$frontend_bucket" >> "$GITHUB_OUTPUT"
+
+      - name: Empty frontend bucket
+        if: steps.development.outputs.frontend_bucket != ''
+        env:
+          FRONTEND_BUCKET: ${{ steps.development.outputs.frontend_bucket }}
+        run: aws s3 rm "s3://$FRONTEND_BUCKET" --recursive
+
+      - name: Plan complete development destruction
+        working-directory: infrastructure/terraform/development
+        run: |
+          terraform plan \
+            -destroy \
+            -input=false \
+            -out=destroy.tfplan \
+            -var="aws_region=$AWS_REGION" \
+            -var="lambda_package_path=/tmp/student-management-destroy-placeholder.zip"
+
+      - name: Destroy development infrastructure
+        working-directory: infrastructure/terraform/development
+        run: terraform apply -input=false -auto-approve destroy.tfplan
+
+      - name: Delete residual project data created outside Terraform
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          aws logs delete-log-group \
+            --log-group-name /aws/lambda/student-management-development-api \
+            2>/dev/null || true
+
+          secret_id="student-management-development/application"
+          if aws secretsmanager describe-secret --secret-id "$secret_id" >/tmp/application-secret.json 2>/dev/null; then
+            if jq -e '.DeletedDate != null' /tmp/application-secret.json >/dev/null; then
+              aws secretsmanager restore-secret --secret-id "$secret_id" >/dev/null
+            fi
+
+            for attempt in {1..10}; do
+              if aws secretsmanager delete-secret \
+                --secret-id "$secret_id" \
+                --force-delete-without-recovery >/dev/null 2>&1; then
+                break
+              fi
+
+              if [ "$attempt" -eq 10 ]; then
+                echo "Unable to permanently delete secret $secret_id."
+                exit 1
+              fi
+
+              sleep 2
+            done
+          fi
+
+          aws rds describe-db-snapshots \
+            --snapshot-type manual \
+            --output json |
+            jq -r '.DBSnapshots[] | select(.DBSnapshotIdentifier | startswith("student-management-development-sql")) | .DBSnapshotIdentifier' |
+            while read -r snapshot_id; do
+              aws rds delete-db-snapshot --db-snapshot-identifier "$snapshot_id" >/dev/null
+              aws rds wait db-snapshot-deleted --db-snapshot-identifier "$snapshot_id"
+            done
+
+          aws rds describe-db-instance-automated-backups \
+            --output json |
+            jq -r '.DBInstanceAutomatedBackups[] | select(.DBInstanceIdentifier == "student-management-development-sql") | .DbiResourceId' |
+            while read -r resource_id; do
+              aws rds delete-db-instance-automated-backup \
+                --dbi-resource-id "$resource_id" >/dev/null
+            done
+
+      - name: Delete RDS service-linked role
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! aws iam get-role --role-name "$RDS_SERVICE_ROLE_NAME" >/dev/null 2>&1; then
+            echo "RDS service-linked role does not exist."
+            exit 0
+          fi
+
+          deletion_task_id=$(aws iam delete-service-linked-role \
+            --role-name "$RDS_SERVICE_ROLE_NAME" \
+            --query DeletionTaskId \
+            --output text)
+
+          for attempt in {1..60}; do
+            status=$(aws iam get-service-linked-role-deletion-status \
+              --deletion-task-id "$deletion_task_id" \
+              --query Status \
+              --output text)
+
+            case "$status" in
+              SUCCEEDED)
+                echo "RDS service-linked role deleted."
+                exit 0
+                ;;
+              FAILED)
+                aws iam get-service-linked-role-deletion-status --deletion-task-id "$deletion_task_id"
+                exit 1
+                ;;
+              *)
+                echo "RDS service-linked role deletion status: $status"
+                sleep 10
+                ;;
+            esac
+          done
+
+          echo "Timed out waiting for the RDS service-linked role deletion."
+          exit 1
+
+      - name: Empty and delete the versioned Terraform state bucket
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          while true; do
+            aws s3api list-object-versions \
+              --bucket "$TF_STATE_BUCKET" \
+              --max-keys 1000 \
+              --output json > /tmp/state-versions.json
+
+            jq '{
+              Objects: (((.Versions // []) + (.DeleteMarkers // [])) | map({Key, VersionId})),
+              Quiet: true
+            }' /tmp/state-versions.json > /tmp/state-delete.json
+
+            object_count=$(jq '.Objects | length' /tmp/state-delete.json)
+            if [ "$object_count" -eq 0 ]; then
+              break
+            fi
+
+            aws s3api delete-objects \
+              --bucket "$TF_STATE_BUCKET" \
+              --delete file:///tmp/state-delete.json >/dev/null
+          done
+
+          aws s3api delete-bucket --bucket "$TF_STATE_BUCKET"
+
+      - name: Delete GitHub OIDC provider
+        env:
+          OIDC_PROVIDER_ARN: ${{ steps.targets.outputs.oidc_provider_arn }}
+        run: |
+          if aws iam get-open-id-connect-provider \
+            --open-id-connect-provider-arn "$OIDC_PROVIDER_ARN" >/dev/null 2>&1; then
+            aws iam delete-open-id-connect-provider \
+              --open-id-connect-provider-arn "$OIDC_PROVIDER_ARN"
+          fi
+
+      - name: Delete the GitHub deployer role
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          aws iam list-role-policies \
+            --role-name "$DEPLOYER_ROLE_NAME" \
+            --output json |
+            jq -r '.PolicyNames[]' |
+            while read -r policy_name; do
+              aws iam delete-role-policy \
+                --role-name "$DEPLOYER_ROLE_NAME" \
+                --policy-name "$policy_name"
+            done
+
+          aws iam list-attached-role-policies \
+            --role-name "$DEPLOYER_ROLE_NAME" \
+            --output json |
+            jq -r '.AttachedPolicies[].PolicyArn' |
+            while read -r policy_arn; do
+              aws iam detach-role-policy \
+                --role-name "$DEPLOYER_ROLE_NAME" \
+                --policy-arn "$policy_arn"
+            done
+
+          aws iam delete-role --role-name "$DEPLOYER_ROLE_NAME"
+
+      - name: Confirm teardown
+        run: |
+          echo "### AWS teardown completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "All Student Management development and bootstrap AWS resources were permanently deleted." >> "$GITHUB_STEP_SUMMARY"
+          echo "No database snapshot was retained." >> "$GITHUB_STEP_SUMMARY"

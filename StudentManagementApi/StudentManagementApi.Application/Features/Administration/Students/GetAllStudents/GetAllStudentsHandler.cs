@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using MediatR;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Application.Specifications;
@@ -25,7 +24,7 @@ internal sealed class GetAllStudentsHandler(IReadRepository<Student> studentRepo
             cancellationToken);
 
         return Result<PagedResponse<StudentResponse>>.Success(new(
-            students.Select(student => student.ToResponse()).ToArray(),
+            students,
             request.PageNumber,
             request.PageSize,
             totalCount));

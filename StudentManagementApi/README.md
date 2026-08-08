@@ -1,40 +1,133 @@
 # Student Management API
 
-Student Management API is a .NET 10 and SQL Server backend for academic registration. It applies hexagonal architecture, domain-driven design, CQRS with MediatR, Ardalis Specification, Ardalis Result, EF Core Code First, typed error codes, JWT authentication, and CSRF protection.
+API académica desarrollada con .NET 10 y SQL Server. Expone ASP.NET Core Minimal APIs y puede ejecutarse localmente como aplicación web o en AWS Lambda detrás de API Gateway.
 
-## Business rules
+## Responsabilidades
 
-- A student can have only one active enrollment.
-- An enrollment contains exactly three distinct courses from one academic program.
-- Every course is worth three credits, so an enrollment totals nine credits.
-- The three selected courses must have three different professors.
-- A professor can teach at most two courses within an academic program.
-- Courses referenced by active enrollments cannot be modified, reassigned, or deactivated.
-- Delete operations deactivate or cancel records; they never physically delete business data.
-- Students can see only the names of classmates who share each selected course.
+- Autenticación de administradores y estudiantes.
+- Administración de programas, cursos, profesores y estudiantes.
+- Creación, modificación y cancelación de matrículas.
+- Consulta de compañeros que comparten un curso.
+- Aplicación centralizada de reglas de dominio, autorización y validación.
 
-## Architecture
+## Arquitectura
 
-The dependency direction is inward:
+La solución combina arquitectura hexagonal, Domain-Driven Design y organización vertical por caso de uso.
 
-```text
-Presentation.Lambda --> Application <-- Infrastructure.Persistence.SqlServer
-         │                  │          <── Infrastructure.Security
-         └──────────────────┴─────────────> Domain
+```mermaid
+flowchart LR
+    Presentation["Presentation.Lambda\nMinimal APIs y AWS hosting"] --> Application["Application\nCasos de uso y puertos"]
+    Persistence["Infrastructure.Persistence.SqlServer\nEF Core y SQL Server"] --> Application
+    Security["Infrastructure.Security\nJWT, cookies y contraseñas"] --> Application
+    Application --> Domain["Domain\nAgregados e invariantes"]
+    Presentation --> Persistence
+    Presentation --> Security
 ```
 
-- `Domain` contains aggregates, entities, value objects, identifiers, enums, and invariants. It has no framework dependency.
-- `Application` contains use cases organized vertically, repository ports, specifications, validators, Result factories, and security abstractions.
-- `Infrastructure.Persistence.SqlServer` implements EF Core contexts, repositories, configurations, migrations, transactions, concurrency, and catalog seeding.
-- `Infrastructure.Security` implements password hashing, JWT creation and validation, current-user access, and authentication cookies.
-- `Presentation.Lambda` contains grouped Minimal API endpoints, AWS Lambda hosting, Problem Details translation, antiforgery enforcement, and rate limiting.
-- Unit tests are separated into domain and application projects.
+La dirección conceptual de las dependencias apunta hacia `Application` y `Domain`. Los detalles externos implementan contratos definidos por la capa de aplicación.
 
-Commands inject only `IWriteRepository<TAggregate>` and run inside serializable transactions. Queries inject only `IReadRepository<TAggregate>` and use a dedicated no-tracking context. Neither `IQueryable`, `DbSet`, nor EF Core types leave Persistence.
+| Proyecto | Responsabilidad |
+| --- | --- |
+| `StudentManagementApi.Domain` | Agregados, entidades, value objects, identificadores, enumeraciones e invariantes sin dependencia de frameworks. |
+| `StudentManagementApi.Application` | Commands, queries, handlers, validadores, contratos, especificaciones, resultados y puertos de persistencia/seguridad. |
+| `StudentManagementApi.Infrastructure.Persistence.SqlServer` | EF Core, configuraciones, contextos, repositorios, transacciones, migraciones y bootstrap del administrador. |
+| `StudentManagementApi.Infrastructure.Security` | Hash de contraseñas, JWT, cookies y acceso al usuario actual. |
+| `StudentManagementApi.Presentation.Lambda` | Minimal APIs, hosting Lambda, OpenAPI, Problem Details, antiforgery, CORS y rate limiting. |
+| `Test/*` | Pruebas unitarias del dominio y de la aplicación. |
 
-## Error contract
+## CQRS y persistencia
 
-Expected validation and business failures return `Ardalis.Result` with a stable English `ErrorCode`. Unexpected exceptions and EF concurrency exceptions are handled globally. Presentation translates both paths to RFC Problem Details and never exposes exception messages, SQL, stack traces, password hashes, signing keys, or JWT values.
+Los casos de escritura y lectura tienen dependencias diferentes:
+
+```text
+Command Handler -> IWriteRepository -> StudentManagementWriteDbContext -> SQL Server
+Query Handler   -> IReadRepository  -> StudentManagementReadDbContext  -> SQL Server
+```
+
+- Los commands modifican agregados y se ejecutan dentro de transacciones serializables.
+- Las queries usan un contexto dedicado sin tracking y especificaciones con proyección.
+- `IQueryable`, `DbSet` y tipos de EF Core no salen de Infrastructure.
+- `rowversion` implementa concurrencia optimista.
+- Los enums se almacenan como texto legible.
+- Los índices únicos protegen correos, documentos, códigos y asignaciones.
+
+## Casos de uso
+
+La carpeta `Application/Features` organiza cada operación verticalmente. Un caso de uso normalmente contiene:
+
+```text
+Feature/
+├── OperationCommand.cs o OperationQuery.cs
+├── OperationHandler.cs
+└── OperationValidator.cs
+```
+
+MediatR desacopla los endpoints de los handlers. FluentValidation valida la entrada y Ardalis Result representa resultados esperados sin lanzar excepciones para reglas de negocio.
+
+## Grupos de endpoints
+
+Todas las rutas de negocio viven bajo `/api`.
+
+| Grupo | Acceso | Ejemplos |
+| --- | --- | --- |
+| `/Authentication` | Público y autenticado | Token antiforgery, registro, login, logout y usuario actual. |
+| `/AcademicPrograms` | Catálogo | Programas activos. |
+| `/Courses` | Catálogo | Cursos activos por programa. |
+| `/AdministrationAcademicPrograms` | Administrador | CRUD lógico de programas. |
+| `/AdministrationCourses` | Administrador | CRUD lógico y asignación de profesor. |
+| `/AdministrationProfessors` | Administrador | Creación, edición, activación y desactivación. |
+| `/AdministrationStudents` | Administrador | Creación, edición, activación y desactivación. |
+| `/Enrollments` | Estudiante | Crear, consultar, reemplazar cursos, cancelar y consultar compañeros. |
+| `/StudentProfiles` | Estudiante | Consultar, actualizar y desactivar la cuenta actual. |
+
+Swagger está disponible en `/swagger` y el documento OpenAPI en `/openapi/v1.json`.
+
+## Reglas de negocio
+
+- Un estudiante solo puede tener una matrícula activa.
+- Una matrícula contiene exactamente tres cursos distintos del mismo programa.
+- Cada curso vale tres créditos; la matrícula completa suma nueve.
+- Los tres cursos seleccionados deben tener profesores diferentes.
+- Un profesor puede impartir como máximo dos cursos dentro de un programa.
+- Un curso utilizado por una matrícula activa no puede modificarse, reasignarse ni desactivarse.
+- Las eliminaciones de negocio son desactivaciones o cancelaciones, nunca borrados físicos.
+- Un estudiante solo puede consultar los nombres de compañeros que comparten sus cursos.
+
+Las invariantes críticas viven en el dominio. Los handlers coordinan repositorios, permisos y transacciones, pero no duplican esas reglas.
+
+## Seguridad
+
+### Autenticación y antiforgery
+
+1. El cliente solicita `GET /api/Authentication/GenerateAntiforgeryToken`.
+2. La API escribe la cookie `__Host-student_csrf` y devuelve el token de solicitud.
+3. Registro o login escriben el JWT en `__Host-student_access_token`; el token no aparece en el JSON.
+4. Las solicitudes `POST`, `PUT`, `PATCH` y `DELETE` envían `X-CSRF-TOKEN`.
+5. Después de cambiar la identidad se solicita un nuevo token antiforgery.
+
+Las cookies son `Secure`, `SameSite=Strict`, tienen `Path=/` y usan el prefijo `__Host-`. La cookie JWT también es `HttpOnly`.
+
+Los claims principales son:
+
+- `sub`: identificador de la cuenta.
+- `role`: `Administrator` o `Student`.
+- `student_id`: identificador del estudiante cuando aplica.
+- `jti`: identificador único del token.
+
+### Configuración en AWS
+
+Durante el arranque de Lambda, `AwsSecretsConfigurationExtensions` lee `APPLICATION_SECRET_ARN` y obtiene desde Secrets Manager:
+
+- `ConnectionString`.
+- `JwtSigningKey`.
+- `BootstrapAdministratorEmail`.
+- `BootstrapAdministratorPassword`.
+
+La llamada utiliza el VPC Interface Endpoint de Secrets Manager. La política de ejecución de Lambda solo permite `GetSecretValue` sobre el secreto de la aplicación.
+
+## Contrato de errores
+
+Errores esperados se representan con `Ardalis.Result` y un `ErrorCode` estable. La presentación los traduce a RFC Problem Details:
 
 ```json
 {
@@ -46,51 +139,68 @@ Expected validation and business failures return `Ardalis.Result` with a stable 
 }
 ```
 
-All visible error text is stored in `ErrorMessages.es-CO.resx`. Handlers and endpoints contain no response-message literals. Successful responses return a resource or `204 No Content` without decorative messages.
+Los textos visibles se mantienen en `ErrorMessages.es-CO.resx`. Las respuestas nunca exponen SQL, stack traces, hashes de contraseña, claves de firma ni tokens JWT.
 
-## Configuration
+## Desarrollo local
 
-The Lambda uses the standard .NET configuration providers. The root `.env.example` documents the required environment variables; export equivalent values locally or configure them in Lambda before starting the API:
+### Requisitos
+
+- .NET SDK 10.
+- SQL Server LocalDB o SQL Server.
+- Herramienta `dotnet-ef` compatible con EF Core 10.
+
+Desde `StudentManagementApi/`:
 
 ```powershell
-dotnet run --project StudentManagementApi.Presentation.Lambda
+Copy-Item .env.example .env
+dotnet restore StudentManagementApi.slnx
+
+dotnet ef database update `
+  --project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --context StudentManagementWriteDbContext
+
+dotnet run `
+  --project StudentManagementApi.Presentation.Lambda `
+  --urls https://localhost:7273
 ```
 
-Database migrations are explicit by default. The Terraform Development environment enables a guarded startup migration so the private RDS database can be initialized without exposing it publicly. Deployment secrets and the bootstrap administrator credentials are loaded from AWS Secrets Manager.
+El factory de diseño busca primero `ConnectionStrings__StudentManagementDb` y, si no existe, carga el archivo `.env` recorriendo los directorios padre.
 
-Development CORS accepts HTTP and HTTPS loopback origins on any port. Browser clients must send requests with credentials enabled because authentication and antiforgery use cookies. Non-development environments accept only origins configured through indexed `Cors__AllowedOrigins__N` variables.
+## Migraciones
 
-Swagger UI is available at `/swagger`, and its OpenAPI document is exposed at `/openapi/v1.json`.
-
-Development infrastructure and deployment are managed with Terraform. See [`docs/terraform-development.md`](../docs/terraform-development.md) for the one-time AWS and GitHub configuration.
-
-## Authentication and CSRF flow
-
-1. Call `GET /api/Authentication/GenerateAntiforgeryToken`.
-2. Keep the `__Host-student_csrf` cookie and send the returned token in `X-CSRF-TOKEN` for every unsafe request.
-3. Register or log in. The API returns user data and writes the 15-minute JWT to `__Host-student_access_token`; the token is never present in the JSON response.
-4. Generate a new antiforgery request token after authentication changes, because the token is bound to the current identity.
-5. Send cookies with credentials enabled and include the antiforgery header for POST, PUT, PATCH, and DELETE requests.
-
-Both cookies are Secure, SameSite Strict, use Path `/`, and use the `__Host-` prefix. The access-token cookie is HttpOnly. JWT claims are `sub`, `role`, `student_id` for students, and `jti`.
-
-## Tests
-
-Run the unit tests without external infrastructure:
+Crear una migración:
 
 ```powershell
+dotnet ef migrations add NombreMigracion `
+  --project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --context StudentManagementWriteDbContext
+```
+
+Aplicarla localmente:
+
+```powershell
+dotnet ef database update `
+  --project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer `
+  --context StudentManagementWriteDbContext
+```
+
+En AWS Development, la Lambda aplica migraciones pendientes durante el arranque cuando `DatabaseInitialization__ApplyMigrations=true`. Después crea el administrador inicial de forma idempotente. En producción conviene convertir las migraciones en una operación explícita del despliegue.
+
+## Compilación y pruebas
+
+```powershell
+dotnet build StudentManagementApi.slnx
 dotnet test StudentManagementApi.slnx
 ```
 
-The unit suites cover value objects, domain invariants, aggregate state transitions, localized error resources, Result statuses, domain-error mappings, and in-memory specification filtering, ordering, and projections.
+Las pruebas cubren invariantes del dominio, transiciones de agregados, resultados, recursos de error, especificaciones y comportamiento de casos de uso.
 
-## Database migrations
+## Documentación relacionada
 
-Generate and apply migrations using the configured connection string:
-
-```powershell
-dotnet ef migrations add MigrationName --project StudentManagementApi.Infrastructure.Persistence.SqlServer --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer --context StudentManagementDbContext
-dotnet ef database update --project StudentManagementApi.Infrastructure.Persistence.SqlServer --startup-project StudentManagementApi.Infrastructure.Persistence.SqlServer --context StudentManagementDbContext
-```
-
-Enums are stored as readable text. The schema uses unique indexes for email, document numbers, codes, and teaching assignments; a filtered unique index enforces one active enrollment per student; `rowversion` provides optimistic concurrency; and foreign keys restrict destructive deletes.
+- [README principal](../README.md)
+- [Guía técnica completa](../docs/guia-tecnica-completa.md)
+- [Arquitectura AWS](../docs/architecture/student-management-aws-architecture.md)
+- [Terraform Development](../docs/terraform-development.md)

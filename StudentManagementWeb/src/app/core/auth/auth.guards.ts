@@ -1,37 +1,56 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
-
-import { AccountRole } from '@core/api/api.models';
-
+import { map } from 'rxjs';
+import { AccountRole } from '../api/api.models';
 import { AuthFacade } from './auth.facade';
 
-export const entryRedirectGuard: CanActivateFn = async () => {
-  const authFacade = inject(AuthFacade);
+export const authenticatedGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AuthFacade);
   const router = inject(Router);
-  await authFacade.initialize();
-  const user = authFacade.user();
-  return user ? router.parseUrl(authFacade.homeFor(user.role)) : router.parseUrl('/login');
+  return auth
+    .ensureSession()
+    .pipe(
+      map((user) =>
+        user
+          ? true
+          : router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } }),
+      ),
+    );
 };
 
-export const guestGuard: CanMatchFn = async () => {
-  const authFacade = inject(AuthFacade);
+export const guestGuard: CanActivateFn = () => {
+  const auth = inject(AuthFacade);
   const router = inject(Router);
-  await authFacade.initialize();
-  const user = authFacade.user();
-  return user ? router.parseUrl(authFacade.homeFor(user.role)) : true;
+  return auth
+    .ensureSession()
+    .pipe(
+      map(
+        (user) =>
+          !user || router.createUrlTree([user.role === 'Administrator' ? '/admin' : '/student']),
+      ),
+    );
 };
 
-export const roleGuard =
-  (role: AccountRole): CanMatchFn =>
-  async () => {
-    const authFacade = inject(AuthFacade);
+export function roleGuard(role: AccountRole): CanMatchFn {
+  return () => {
+    const auth = inject(AuthFacade);
     const router = inject(Router);
-    await authFacade.initialize();
-    const user = authFacade.user();
-
-    if (!user) {
-      return router.parseUrl('/login');
-    }
-
-    return user.role === role ? true : router.parseUrl('/forbidden');
+    return auth
+      .ensureSession()
+      .pipe(map((user) => user?.role === role || router.createUrlTree(['/forbidden'])));
   };
+}
+
+export const homeRedirectGuard: CanActivateFn = () => {
+  const auth = inject(AuthFacade);
+  const router = inject(Router);
+  return auth
+    .ensureSession()
+    .pipe(
+      map((user) =>
+        router.createUrlTree([
+          user?.role === 'Administrator' ? '/admin' : user ? '/student' : '/auth/login',
+        ]),
+      ),
+    );
+};

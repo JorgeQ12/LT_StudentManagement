@@ -5,5 +5,5 @@ using StudentManagementApi.Infrastructure.Persistence.SqlServer.Context;
 
 namespace StudentManagementApi.Infrastructure.Persistence.SqlServer.Repositories;
 
-internal sealed class EfWriteRepository<TAggregate>(StudentManagementDbContext dbContext)
+internal sealed class EfWriteRepository<TAggregate>(StudentManagementWriteDbContext dbContext)
     : RepositoryBase<TAggregate>(dbContext), IWriteRepository<TAggregate> where TAggregate : class, IAggregateRoot;

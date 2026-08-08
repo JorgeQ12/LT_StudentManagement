@@ -1,46 +1,48 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
-
-import { AuthenticationApiService } from './authentication-api.service';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, finalize, map, Observable, shareReplay, throwError } from 'rxjs';
+import { API_BASE_URL } from '../api/api-base-url.token';
+import { SKIP_GLOBAL_LOADING } from '../http/http-context';
+import { AntiforgeryTokenResponse } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AntiforgeryService {
-  private readonly authenticationApi = inject(AuthenticationApiService);
-  private readonly tokenState = signal<string | null>(null);
-  private inFlightRequest?: Observable<string>;
+  private readonly http = inject(HttpClient);
+  private readonly endpoint = `${inject(API_BASE_URL)}/Authentication/GenerateAntiforgeryToken`;
+  private token: string | null = null;
+  private request$: Observable<string> | null = null;
 
-  ensureToken(): Observable<string> {
-    const token = this.tokenState();
-    if (token) {
-      return of(token);
+  getToken(): Observable<string> {
+    if (this.token) {
+      return new Observable<string>((subscriber) => {
+        subscriber.next(this.token!);
+        subscriber.complete();
+      });
+    }
+    if (this.request$) {
+      return this.request$;
     }
 
-    if (!this.inFlightRequest) {
-      this.inFlightRequest = this.authenticationApi.getAntiforgeryToken().pipe(
-        map((response) => response.token),
-        tap((requestToken) => {
-          if (!requestToken) {
-            throw new Error('The antiforgery endpoint returned an empty token.');
-          }
-          this.tokenState.set(requestToken);
+    this.request$ = this.http
+      .get<AntiforgeryTokenResponse>(this.endpoint, {
+        context: new HttpContext().set(SKIP_GLOBAL_LOADING, true),
+      })
+      .pipe(
+        map(({ token }) => {
+          this.token = token;
+          return token;
         }),
+        catchError((error: unknown) => throwError(() => error)),
         finalize(() => {
-          this.inFlightRequest = undefined;
+          this.request$ = null;
         }),
         shareReplay({ bufferSize: 1, refCount: false }),
       );
-    }
-
-    return this.inFlightRequest;
-  }
-
-  refresh(): Observable<string> {
-    this.clear();
-    return this.ensureToken();
+    return this.request$;
   }
 
   clear(): void {
-    this.tokenState.set(null);
-    this.inFlightRequest = undefined;
+    this.token = null;
+    this.request$ = null;
   }
 }

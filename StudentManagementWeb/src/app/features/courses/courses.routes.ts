@@ -1,39 +1,26 @@
 import { Routes } from '@angular/router';
-
-import { pendingChangesGuard } from '@core/navigation/pending-changes.guard';
-
-import { CoursesFacade } from './facades/courses.facade';
-
-export const COURSES_ADMIN_ROUTES: Routes = [
+import { ProfessorsApiService } from '../professors/public-api';
+import { CoursesApiService } from './data-access/courses-api.service';
+import { CoursesFacade } from './facade/courses.facade';
+export const COURSES_ROUTES: Routes = [
   {
     path: '',
-    providers: [CoursesFacade],
+    providers: [CoursesApiService, ProfessorsApiService, CoursesFacade],
+    loadComponent: () =>
+      import('./pages/course-list/course-list.page').then((module) => module.CourseListPage),
     children: [
       {
-        path: '',
-        pathMatch: 'full',
-        title: 'Materias | Portal Académico',
-        loadComponent: () =>
-          import('./pages/courses-list/courses-list-page').then(
-            (component) => component.CoursesListPage,
-          ),
-      },
-      {
         path: 'new',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Crear materia | Portal Académico',
         loadComponent: () =>
-          import('./pages/course-form/course-form-page').then(
-            (component) => component.CourseFormPage,
+          import('./components/course-form/course-form.component').then(
+            (module) => module.CourseFormComponent,
           ),
       },
       {
         path: ':id/edit',
-        canDeactivate: [pendingChangesGuard],
-        title: 'Editar materia | Portal Académico',
         loadComponent: () =>
-          import('./pages/course-form/course-form-page').then(
-            (component) => component.CourseFormPage,
+          import('./components/course-form/course-form.component').then(
+            (module) => module.CourseFormComponent,
           ),
       },
     ],

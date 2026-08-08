@@ -1,102 +1,171 @@
 # Student Management Web
 
-Angular 22 frontend for **Portal Académico**. It is a client-rendered, zoneless SPA built with standalone components, strict TypeScript, Signal Forms, Signals, RxJS, Tailwind CSS v4, Angular CDK and Lucide icons.
+Frontend activo del portal académico. Fue creado como una aplicación Angular 22 independiente y consume la API Lambda mediante un único origen HTTPS.
 
-The interface targets Spanish-speaking users in Colombia. Source code and technical documentation use English.
+> [!NOTE]
+> Este es el frontend que compila y publica GitHub Actions.
 
-## Architecture
+## Stack
 
-The application uses a feature-first structure:
+- Angular 22 y componentes standalone.
+- TypeScript 6 en modo estricto.
+- Signals para estado de interfaz y RxJS para flujos HTTP.
+- Reactive Forms.
+- SCSS y CSS Custom Properties.
+- Angular CDK Overlay.
+- Iconos SVG Lucide mediante un catálogo tipado.
+- Vitest, ESLint y Prettier.
+
+## Arquitectura
+
+La aplicación usa una organización feature-first y mantiene un flujo de dependencias predecible:
+
+```mermaid
+flowchart LR
+    Page["Page enrutable"] --> Component["Componentes hijos"]
+    Page --> Facade["Facade · estado y orquestación"]
+    Component --> Facade
+    Facade --> Service["Data Access Service"]
+    Service --> Http["HttpClient"]
+    Http --> Api["/api · Lambda"]
+```
+
+- Las pages son contenedores de ruta y coordinan componentes de feature.
+- Los componentes hijos presentan formularios, tablas, filtros y estados.
+- Los facades exponen Signals readonly, orquestan casos de uso y controlan el estado de pantalla.
+- Los servicios de `data-access/` contienen únicamente transporte HTTP y mapeo de DTO.
+- Ninguna page consume `HttpClient` directamente.
+
+## Estructura
 
 ```text
 src/app/
-|-- core/                         # Session, HTTP, guards and the application shell
-|-- features/
-|   `-- <feature>/
-|       |-- pages/                # Routable components (external TS, HTML and CSS)
-|       |-- components/           # UI owned by the feature
-|       |-- services/             # API-only services: transport and HTTP
-|       |-- facades/              # UI state, orchestration and use cases
-|       |-- models/               # Presentation models and pure rules
-|       |-- public-api.ts         # Public boundary for cross-feature access
-|       `-- <feature>.routes.ts   # Lazy routes and feature providers
-`-- shared/ui/                    # Reusable presentation primitives
+├── core/
+│   ├── api/                  contratos compartidos de API
+│   ├── auth/                 sesión, guards y autorización
+│   ├── http/                 interceptors y Problem Details
+│   └── loading/              estado del loader HTTP global
+├── features/
+│   ├── authentication/
+│   ├── administration/
+│   ├── academic-programs/
+│   ├── courses/
+│   ├── professors/
+│   ├── students/
+│   ├── academic-catalog/
+│   ├── enrollment/
+│   └── student-profile/
+├── layout/app-shell/         navegación autenticada
+└── shared/
+    ├── components/           modal, select, datepicker, iconos y controles
+    ├── services/             servicios transversales
+    └── utils/                utilidades puras
 ```
 
-Pages act as route containers and compose smaller feature components. They inject facades, never API services directly. Facades orchestrate use cases and expose readonly Signals. API services inject `HttpClient`, map transport DTOs and perform no UI orchestration.
+Las rutas de cada feature se cargan de forma diferida. Los formularios de creación y edición son componentes hijos presentados dentro de modales, mientras la page de la sección conserva filtros, tabla y paginación.
 
-Cross-feature imports go through a feature public API. ESLint prevents deep imports across feature boundaries.
+## Sistema visual y componentes compartidos
 
-## Runtime and security
+- Paleta minimalista en negro, gris y blanco.
+- Botones de acción con icono SVG y texto.
+- Modal compartido para creación, edición, éxito, advertencia, error y confirmación.
+- Loader HTTP global presentado como modal de carga.
+- Select y datepicker propios implementados como controles Angular.
+- Angular CDK Overlay para mostrar menús y calendarios fuera del `overflow` del modal.
+- Tablas, buscadores, estados vacíos y paginación con una línea visual común.
 
-- `API_BASE_URL` defaults to `/api` so browser traffic remains same-origin.
-- Every HTTP request uses credentials.
-- JWTs and antiforgery tokens are never stored in browser storage.
-- The session store keeps only the current user, role and session status in memory.
-- Unsafe requests receive an in-memory `X-CSRF-TOKEN` automatically.
-- Authentication and role guards improve navigation, while the API remains the authorization authority.
-- `401` responses clear the client session and redirect to login with a session-expired notice.
+Los mensajes importantes usan el modal global; no se usan `alert()`, widgets nativos, toasts ni snackbars.
 
-## Local development
+## Estado y flujo HTTP
 
-Requirements:
+```text
+Interacción
+  -> Facade actualiza estado de carga
+  -> Data Access Service envía la solicitud
+  -> Interceptors agregan credenciales y antiforgery
+  -> API responde
+  -> se cierra el formulario
+  -> se muestra loader y luego modal de resultado
+  -> se recarga la tabla cuando la operación fue exitosa
+```
 
-- Node.js 24
-- npm 11
-- Backend listening on `https://localhost:44325`
+El loader utiliza reference counting para soportar solicitudes simultáneas. Peticiones que no deben bloquear la pantalla pueden excluirse mediante un `HttpContextToken`.
 
-```bash
+## Autenticación
+
+- La URL base es `/api`; en AWS comparte dominio con el frontend.
+- Todas las solicitudes se envían con credenciales.
+- El JWT permanece en la cookie HttpOnly `__Host-student_access_token`.
+- El frontend no guarda JWT ni secretos en `localStorage` o `sessionStorage`.
+- Las operaciones inseguras agregan `X-CSRF-TOKEN` desde memoria.
+- Los guards mejoran la navegación, pero la API continúa siendo la autoridad de autorización.
+- Un `401` limpia la sesión en memoria y redirige al login.
+
+## Contrato OpenAPI
+
+- `docs/openapi.json` contiene una copia local del contrato.
+- `scripts/verify-openapi.mjs` verifica operaciones y esquemas críticos.
+- Fechas `DateOnly` viajan como `YYYY-MM-DD`.
+- Fechas de auditoría utilizan ISO 8601 con zona.
+- Los errores siguen RFC Problem Details e incluyen `code`, `traceId` y, para validación, errores por campo.
+
+## Desarrollo local
+
+### Requisitos
+
+- Node.js `>=24.15 <25`.
+- npm `>=11 <12`.
+- API en `https://localhost:7273`.
+- Certificado y llave PEM en `.certs/localhost.pem` y `.certs/localhost.key`.
+
+Si no tienes certificados locales, puedes crearlos con `mkcert`:
+
+```powershell
+New-Item -ItemType Directory -Force .certs | Out-Null
+mkcert -install
+mkcert `
+  -cert-file .certs/localhost.pem `
+  -key-file .certs/localhost.key `
+  localhost 127.0.0.1 ::1
+```
+
+Instalar y ejecutar:
+
+```powershell
 npm ci
 npm start
 ```
 
-The development server runs at `https://localhost:4200`. HTTPS is required because authentication and antiforgery cookies use the `Secure` and `__Host-` protections. Angular replaces `environment.ts` with `environment.development.ts`, while `proxy.conf.json` forwards the same-origin `/api` path to `https://localhost:44325`.
+La aplicación queda en `https://localhost:4200`. `proxy.conf.json` envía `/api` a `https://localhost:7273` y desactiva únicamente la validación del certificado del destino local.
 
-## Verification
+## Scripts
 
-```bash
-npm run lint
-npm run format:check
-npm run typecheck
-npm run build
-```
+| Comando | Acción |
+| --- | --- |
+| `npm start` | Servidor Angular Development con HTTPS y proxy. |
+| `npm run build` | Build de producción en `dist/student-management-web/browser`. |
+| `npm run lint` | Reglas de Angular ESLint. |
+| `npm run typecheck` | TypeScript sin emitir archivos. |
+| `npm run test -- --watch=false` | Pruebas unitarias una sola vez. |
+| `npm run format:check` | Verifica formato con Prettier. |
+| `npm run verify:contract` | Valida el contrato OpenAPI guardado. |
+| `npm run verify` | Ejecuta toda la verificación anterior y el build. |
 
-`npm run verify` runs linting, formatting, type checking and the production build.
+## Despliegue
 
-### OpenAPI contract check
+Cuando cambia `StudentManagementWeb/**`, GitHub Actions:
 
-Start the backend in Development and run:
+1. Configura Node.js 24 y restaura la caché npm.
+2. Ejecuta `npm ci` y `npm run build`.
+3. Lee desde el estado de Terraform el bucket y la distribución.
+4. Sincroniza `dist/student-management-web/browser` con S3 usando `--delete`.
+5. Crea una invalidación `/*` de CloudFront.
 
-```bash
-npm run test:contract
-```
+Un cambio exclusivo del frontend no recompila la Lambda ni ejecuta `terraform apply`.
 
-The command reads `http://localhost:5119/openapi/v1.json` by default and fails if any required route or HTTP method disappears. Override the source when necessary:
+## Documentación relacionada
 
-```bash
-OPENAPI_URL=https://localhost:7273/openapi/v1.json npm run test:contract
-```
-
-On PowerShell:
-
-```powershell
-$env:OPENAPI_URL = 'https://localhost:7273/openapi/v1.json'
-npm run test:contract
-```
-
-The backend needs a valid `ConnectionStrings__StudentManagementDb` value before it can expose OpenAPI locally.
-
-## Production container
-
-`Dockerfile` performs an Angular production build with Node 24 and serves the output from Nginx. The Nginx configuration provides SPA fallback, immutable caching for hashed assets, security headers and a same-origin `/api` proxy to `student-management-api:8080`.
-
-```bash
-docker build -t student-management-web .
-docker run --rm -p 8081:8080 student-management-web
-```
-
-The public deployment must terminate HTTPS. No runtime configuration file contains secrets.
-
-## Continuous integration
-
-`.github/workflows/frontend-ci.yml` follows the lockfile-based pipeline: install, lint, formatting, type checking and production build. Set the repository variable `OPENAPI_URL` to enable the additional contract job against a deployed or pipeline-hosted API.
+- [Contexto arquitectónico del frontend](FRONTEND_CONTEXT.md)
+- [README principal](../README.md)
+- [Guía técnica completa](../docs/guia-tecnica-completa.md)
+- [Arquitectura AWS](../docs/architecture/student-management-aws-architecture.md)

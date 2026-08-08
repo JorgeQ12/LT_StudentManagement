@@ -11,7 +11,7 @@ using StudentManagementApi.Infrastructure.Persistence.SqlServer.Context;
 
 namespace StudentManagementApi.Infrastructure.Persistence.SqlServer.Migrations
 {
-    [DbContext(typeof(StudentManagementDbContext))]
+    [DbContext(typeof(StudentManagementWriteDbContext))]
     [Migration("20260805203839_InitialCreate")]
     partial class InitialCreate
     {

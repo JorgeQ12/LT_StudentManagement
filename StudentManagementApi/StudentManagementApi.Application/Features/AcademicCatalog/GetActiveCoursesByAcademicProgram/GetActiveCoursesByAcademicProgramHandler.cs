@@ -18,9 +18,11 @@ internal sealed class GetActiveCoursesByAcademicProgramHandler(
     public async Task<Result<IReadOnlyCollection<CourseResponse>>> Handle(GetActiveCoursesByAcademicProgramQuery request, CancellationToken cancellationToken)
     {
         var academicProgramId = new AcademicProgramId(request.AcademicProgramId);
-        var academicProgram = await academicProgramRepository.FirstOrDefaultAsync(new AcademicProgramResponseByIdSpec(academicProgramId), cancellationToken);
+        var academicProgramExists = await academicProgramRepository.AnyAsync(
+            new AcademicProgramByIdSpec(academicProgramId),
+            cancellationToken);
 
-        if (academicProgram is null)
+        if (!academicProgramExists)
         {
             return ApplicationResults.NotFound<IReadOnlyCollection<CourseResponse>>(ErrorCode.AcademicProgramNotFound);
         }

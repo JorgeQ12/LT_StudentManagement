@@ -1,7 +1,6 @@
 using Ardalis.Result;
 using MediatR;
 using StudentManagementApi.Application.Common.Errors;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Application.Specifications;
@@ -13,9 +12,12 @@ internal sealed class GetStudentByIdHandler(IReadRepository<Student> studentRepo
 {
     public async Task<Result<StudentResponse>> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
     {
-        var student = await studentRepository.FirstOrDefaultAsync(new StudentByIdSpec(new(request.StudentId)), cancellationToken);
-        return student is null
+        var response = await studentRepository.FirstOrDefaultAsync(
+            new StudentResponseByIdSpec(new(request.StudentId)),
+            cancellationToken);
+
+        return response is null
             ? ApplicationResults.NotFound<StudentResponse>(ErrorCode.StudentNotFound)
-            : Result<StudentResponse>.Success(student.ToResponse());
+            : Result<StudentResponse>.Success(response);
     }
 }

@@ -1,73 +1,67 @@
 import { Routes } from '@angular/router';
-
-import { entryRedirectGuard, guestGuard, roleGuard } from '@core/auth/auth.guards';
+import { authenticatedGuard, homeRedirectGuard, roleGuard } from './core/auth/auth.guards';
+import { AppShellComponent } from './layout/app-shell/app-shell.component';
+import { RoutePendingComponent } from './shared/components/route-pending/route-pending.component';
 
 export const routes: Routes = [
   {
-    path: '',
-    pathMatch: 'full',
-    canActivate: [entryRedirectGuard],
+    path: 'auth',
+    loadChildren: () =>
+      import('./features/authentication/authentication.routes').then(
+        (module) => module.AUTHENTICATION_ROUTES,
+      ),
+  },
+  {
+    path: 'forbidden',
     loadComponent: () =>
-      import('./shared/ui/route-loading-page').then((component) => component.RouteLoadingPage),
+      import('./shared/components/error-page/error-page.component').then(
+        (module) => module.ErrorPageComponent,
+      ),
+    data: {
+      code: '403',
+      title: 'Acceso restringido',
+      description: 'Tu cuenta no tiene permiso para ingresar a esta sección.',
+    },
   },
   {
     path: '',
-    loadComponent: () =>
-      import('./features/authentication/pages/auth-layout/auth-layout').then(
-        (component) => component.AuthLayout,
-      ),
+    component: AppShellComponent,
+    canActivate: [authenticatedGuard],
     children: [
       {
-        path: 'login',
-        canMatch: [guestGuard],
-        title: 'Iniciar sesión | Portal Académico',
-        loadComponent: () =>
-          import('./features/authentication/pages/login/login-page').then(
-            (component) => component.LoginPage,
+        path: '',
+        pathMatch: 'full',
+        component: RoutePendingComponent,
+        canActivate: [homeRedirectGuard],
+      },
+      {
+        path: 'admin',
+        canMatch: [roleGuard('Administrator')],
+        loadChildren: () =>
+          import('./features/administration/administration.routes').then(
+            (module) => module.ADMINISTRATION_ROUTES,
           ),
       },
       {
-        path: 'register',
-        canMatch: [guestGuard],
-        title: 'Crear cuenta | Portal Académico',
-        loadComponent: () =>
-          import('./features/authentication/pages/register/register-page').then(
-            (component) => component.RegisterPage,
+        path: 'student',
+        canMatch: [roleGuard('Student')],
+        loadChildren: () =>
+          import('./features/student-profile/student.routes').then(
+            (module) => module.STUDENT_ROUTES,
           ),
       },
     ],
   },
   {
-    path: 'student',
-    canMatch: [roleGuard('Student')],
-    loadComponent: () => import('./core/layout/app-shell').then((component) => component.AppShell),
-    loadChildren: () => import('@features/student-profile').then((routes) => routes.STUDENT_ROUTES),
-  },
-  {
-    path: 'admin',
-    canMatch: [roleGuard('Administrator')],
-    loadComponent: () => import('./core/layout/app-shell').then((component) => component.AppShell),
-    loadChildren: () =>
-      import('@features/administration').then((routes) => routes.ADMINISTRATION_ROUTES),
-  },
-  {
-    path: 'forbidden',
-    title: 'Acceso restringido | Portal Académico',
-    loadComponent: () => import('./shared/ui/error-page').then((component) => component.ErrorPage),
-    data: {
-      status: '403',
-      title: 'No tienes acceso a esta sección',
-      description: 'Tu perfil no cuenta con los permisos necesarios para abrir este contenido.',
-    },
-  },
-  {
     path: '**',
-    title: 'Página no encontrada | Portal Académico',
-    loadComponent: () => import('./shared/ui/error-page').then((component) => component.ErrorPage),
+    loadComponent: () =>
+      import('./shared/components/error-page/error-page.component').then(
+        (module) => module.ErrorPageComponent,
+      ),
     data: {
-      status: '404',
-      title: 'Esta página no existe',
-      description: 'Es posible que el enlace haya cambiado o que la dirección esté incompleta.',
+      code: '404',
+      title: 'Página no encontrada',
+      description: 'La dirección solicitada no existe o cambió.',
     },
   },
 ];

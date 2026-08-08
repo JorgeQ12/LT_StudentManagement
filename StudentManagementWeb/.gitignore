@@ -31,9 +31,10 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+/.certs
 .sass-cache/
 /connect.lock
-*.tsbuildinfo
+/coverage
 /libpeerconnection.log
 testem.log
 /typings

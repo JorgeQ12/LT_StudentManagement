@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using MediatR;
-using StudentManagementApi.Application.Common.Mappings;
 using StudentManagementApi.Application.Common.Persistence;
 using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Application.Specifications;
@@ -25,7 +24,7 @@ internal sealed class GetAllProfessorsHandler(IReadRepository<Professor> profess
             cancellationToken);
 
         return Result<PagedResponse<ProfessorResponse>>.Success(new(
-            professors.Select(professor => professor.ToResponse()).ToArray(),
+            professors,
             request.PageNumber,
             request.PageSize,
             totalCount));

@@ -13,7 +13,7 @@ variable "lambda_package_path" {
 
 variable "db_instance_class" {
   type    = string
-  default = "db.t3.micro"
+  default = "db.t3.medium"
 }
 
 variable "db_allocated_storage" {

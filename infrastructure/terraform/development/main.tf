@@ -93,26 +93,28 @@ resource "random_password" "bootstrap_administrator" {
 }
 
 resource "aws_db_instance" "sql_server" {
-  identifier              = "${local.name}-sql"
-  engine                  = "sqlserver-ex"
-  license_model           = "license-included"
-  instance_class          = var.db_instance_class
-  allocated_storage       = var.db_allocated_storage
-  storage_type            = "gp3"
-  username                = "studentadmin"
-  password                = random_password.database.result
-  db_subnet_group_name    = aws_db_subnet_group.main.name
-  vpc_security_group_ids  = [aws_security_group.database.id]
-  publicly_accessible     = false
-  multi_az                = false
-  skip_final_snapshot     = true
-  backup_retention_period = 1
-  deletion_protection     = false
-  apply_immediately       = true
+  identifier               = "${local.name}-sql"
+  engine                   = "sqlserver-ex"
+  license_model            = "license-included"
+  instance_class           = var.db_instance_class
+  allocated_storage        = var.db_allocated_storage
+  storage_type             = "gp3"
+  username                 = "studentadmin"
+  password                 = random_password.database.result
+  db_subnet_group_name     = aws_db_subnet_group.main.name
+  vpc_security_group_ids   = [aws_security_group.database.id]
+  publicly_accessible      = false
+  multi_az                 = false
+  skip_final_snapshot      = true
+  delete_automated_backups = true
+  backup_retention_period  = 1
+  deletion_protection      = false
+  apply_immediately        = true
 }
 
 resource "aws_secretsmanager_secret" "application" {
-  name = "${local.name}/application"
+  name                    = "${local.name}/application"
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "application" {
@@ -225,6 +227,7 @@ resource "aws_lambda_permission" "api_gateway" {
 
 resource "aws_s3_bucket" "frontend" {
   bucket_prefix = "sm-dev-frontend-"
+  force_destroy = true
 }
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket                  = aws_s3_bucket.frontend.id

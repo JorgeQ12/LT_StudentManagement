@@ -14,8 +14,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddSqlServerPersistence(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<StudentManagementDbContext>(options => options.UseSqlServer(connectionString, sql =>
-            sql.MigrationsAssembly(typeof(StudentManagementDbContext).Assembly.FullName).EnableRetryOnFailure()));
+        services.AddDbContext<StudentManagementWriteDbContext>(options => options.UseSqlServer(connectionString, sql =>
+            sql.MigrationsAssembly(typeof(StudentManagementWriteDbContext).Assembly.FullName).EnableRetryOnFailure()));
         services.AddDbContext<StudentManagementReadDbContext>(options => options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure())
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
         services.AddScoped(typeof(IWriteRepository<>), typeof(EfWriteRepository<>));

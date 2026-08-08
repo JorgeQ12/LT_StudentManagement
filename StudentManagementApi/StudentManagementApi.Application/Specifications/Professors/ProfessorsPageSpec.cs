@@ -1,15 +1,15 @@
 using Ardalis.Specification;
+using StudentManagementApi.Application.Contracts;
 using StudentManagementApi.Domain;
 using StudentManagementApi.Domain.Professors;
 
 namespace StudentManagementApi.Application.Specifications;
 
-internal sealed class ProfessorsPageSpec : Specification<Professor>
+internal sealed class ProfessorsPageSpec : Specification<Professor, ProfessorResponse>
 {
     public ProfessorsPageSpec(int pageNumber, int pageSize, string? search, CatalogStatus? status)
     {
-        Query.Include(professor => professor.TeachingAssignments)
-            .Where(professor =>
+        Query.Where(professor =>
                 (search == null
                     || professor.FirstName.Contains(search)
                     || professor.LastName.Contains(search)
@@ -19,6 +19,12 @@ internal sealed class ProfessorsPageSpec : Specification<Professor>
             .ThenBy(professor => professor.FirstName)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Select(professor => new ProfessorResponse(
+                professor.Id.Value,
+                professor.FirstName,
+                professor.LastName,
+                professor.Status,
+                professor.TeachingAssignments.Count));
     }
 }

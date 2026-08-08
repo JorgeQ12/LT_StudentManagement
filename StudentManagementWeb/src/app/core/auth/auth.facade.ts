@@ -1,72 +1,78 @@
-import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
-
-import { LoginRequest, RegisterStudentRequest } from '@core/api/api.models';
-
+import { HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { catchError, finalize, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { AntiforgeryService } from './antiforgery.service';
+import { AuthenticatedUser, LoginRequest, RegisterStudentRequest } from './auth.models';
 import { AuthenticationApiService } from './authentication-api.service';
-import { SessionState } from './session-state';
+import { SessionState } from './session-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
   private readonly api = inject(AuthenticationApiService);
-  private readonly sessionState = inject(SessionState);
+  private readonly session = inject(SessionState);
   private readonly antiforgery = inject(AntiforgeryService);
-  private readonly router = inject(Router);
-  private initialization?: Promise<void>;
+  private readonly pending = signal(false);
+  private sessionRequest$: Observable<AuthenticatedUser | null> | null = null;
 
-  readonly status = this.sessionState.status;
-  readonly user = this.sessionState.user;
-  readonly isAuthenticated = this.sessionState.isAuthenticated;
+  readonly user = this.session.user;
+  readonly status = this.session.status;
+  readonly isAuthenticated = this.session.isAuthenticated;
+  readonly isAdministrator = this.session.isAdministrator;
+  readonly isStudent = this.session.isStudent;
+  readonly loading = this.pending.asReadonly();
 
-  initialize(): Promise<void> {
-    if (
-      this.sessionState.status() === 'authenticated' ||
-      this.sessionState.status() === 'anonymous'
-    ) {
-      return Promise.resolve();
-    }
+  ensureSession(): Observable<AuthenticatedUser | null> {
+    if (this.session.status() === 'authenticated') return of(this.session.user());
+    if (this.session.status() === 'anonymous') return of(null);
+    if (this.sessionRequest$) return this.sessionRequest$;
 
-    if (!this.initialization) {
-      this.sessionState.setLoading();
-      this.initialization = firstValueFrom(this.api.getAuthenticatedUser())
-        .then((user) => this.sessionState.authenticate(user))
-        .catch(() => this.sessionState.clear());
-    }
-
-    return this.initialization;
+    this.sessionRequest$ = this.api.getAuthenticatedUser().pipe(
+      tap((user) => this.session.authenticate(user)),
+      catchError((error: unknown) => {
+        this.session.clear();
+        if (error instanceof HttpErrorResponse && error.status === 401) return of(null);
+        return of(null);
+      }),
+      finalize(() => {
+        this.sessionRequest$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    return this.sessionRequest$;
   }
 
-  async login(request: LoginRequest): Promise<void> {
-    const user = await firstValueFrom(this.api.login(request));
-    this.sessionState.authenticate(user);
-    await firstValueFrom(this.antiforgery.refresh());
-    await this.router.navigateByUrl(this.homeFor(user.role));
+  login(request: LoginRequest): Observable<AuthenticatedUser> {
+    this.pending.set(true);
+    return this.api.login(request).pipe(
+      tap((user) => {
+        this.session.authenticate(user);
+        this.antiforgery.clear();
+      }),
+      catchError((error: unknown) => throwError(() => error)),
+      finalize(() => this.pending.set(false)),
+    );
   }
 
-  async register(request: RegisterStudentRequest): Promise<void> {
-    const user = await firstValueFrom(this.api.register(request));
-    this.sessionState.authenticate(user);
-    await firstValueFrom(this.antiforgery.refresh());
-    await this.router.navigateByUrl('/student');
+  register(request: RegisterStudentRequest): Observable<AuthenticatedUser> {
+    this.pending.set(true);
+    return this.api.register(request).pipe(
+      tap((user) => {
+        this.session.authenticate(user);
+        this.antiforgery.clear();
+      }),
+      catchError((error: unknown) => throwError(() => error)),
+      finalize(() => this.pending.set(false)),
+    );
   }
 
-  async logout(): Promise<void> {
-    try {
-      await firstValueFrom(this.api.logout());
-    } finally {
-      this.clearSession();
-      await this.router.navigateByUrl('/login');
-    }
-  }
-
-  clearSession(): void {
-    this.sessionState.clear();
-    this.antiforgery.clear();
-  }
-
-  homeFor(role: 'Student' | 'Administrator'): string {
-    return role === 'Administrator' ? '/admin' : '/student';
+  logout(): Observable<void> {
+    this.pending.set(true);
+    return this.api.logout().pipe(
+      tap(() => {
+        this.session.clear();
+        this.antiforgery.clear();
+      }),
+      finalize(() => this.pending.set(false)),
+    );
   }
 }
