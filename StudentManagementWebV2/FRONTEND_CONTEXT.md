@@ -9,8 +9,9 @@ Portal académico para registro estudiantil y administración de programas, curs
 - Angular 22, TypeScript estricto y componentes standalone
 - Signals para estado y RxJS para HTTP
 - Reactive Forms
-- SCSS y CSS Custom Properties
+- SCSS, CSS Custom Properties y diseño minimalista monocromático
 - HttpClient y Angular CDK
+- Iconos SVG Lucide a través de un componente central
 
 ## Arquitectura
 
@@ -31,6 +32,8 @@ Feature First. El flujo de negocio es `Page -> Facade -> Data Access Service -> 
 - Normalización central de RFC Problem Details
 - Sesión en memoria y autenticación por cookie segura
 - Design tokens y componentes UI compartidos
+- Catálogo tipado de iconos SVG para navegación, acciones y estados
+- Select y datepicker propios como `ControlValueAccessor`, sin desplegables ni calendarios nativos
 
 ## Decisiones arquitectónicas
 
@@ -49,15 +52,16 @@ Feature First. El flujo de negocio es `Page -> Facade -> Data Access Service -> 
 - Servicios HTTP viven en `data-access/` y no contienen lógica visual.
 - Mensajes importantes y confirmaciones usan el modal global; no se usan toasts o snackbars.
 - Fechas `DateOnly` viajan como `YYYY-MM-DD`; fechas de auditoría son ISO 8601 con zona.
+- Los controles visuales dependientes del sistema operativo se reemplazan por componentes propios accesibles por teclado.
 
 ## Estado actual
 
-Proyecto Angular 22 independiente creado desde cero. Contrato OpenAPI de 40 operaciones y 38 esquemas guardado localmente.
+Proyecto Angular 22 independiente creado desde cero. Contrato OpenAPI de 40 operaciones y 38 esquemas guardado localmente. Infraestructura transversal, autenticación, administración, matrícula y perfil estudiantil implementados contra la Lambda.
 
 ## Tarea actual
 
-Implementar la aplicación completa y sus integraciones contra la Lambda.
+Validar y mantener la aplicación completa contra la Lambda.
 
 ## Pendientes relacionados
 
-- Implementar infraestructura transversal, features, pruebas y validación visual.
+- Añadir pruebas end-to-end cuando exista un entorno estable con datos semilla.

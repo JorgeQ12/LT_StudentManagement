@@ -1,0 +1,54 @@
+<section class="page-layout">
+  <app-page-header
+    icon="dashboard"
+    eyebrow="Espacio estudiantil"
+    title="Tu semestre empieza aquí"
+    description="Organiza tu matrícula, consulta tus cursos y mantén tu información al día."
+  />
+  <div class="hero">
+    <div class="hero__content">
+      <span class="hero__eyebrow"
+        ><app-icon name="graduation" size="1rem" /> Plan académico</span
+      >
+      <h2>Construye tu ruta académica</h2>
+      <p>
+        Selecciona tres cursos con profesores diferentes y consulta quiénes serán tus compañeros.
+      </p>
+      <a routerLink="enrollment"
+        ><app-button size="large" icon="enrollment">Gestionar mi matrícula</app-button></a
+      >
+    </div>
+    <div class="hero__visual" aria-label="Resumen de la carga académica">
+      <div class="hero__visual-heading">
+        <span>Carga del semestre</span>
+        <strong>9 créditos</strong>
+      </div>
+      <div class="hero__steps" aria-hidden="true">
+        <span><b>01</b><small>Curso</small></span>
+        <span><b>02</b><small>Curso</small></span>
+        <span><b>03</b><small>Curso</small></span>
+      </div>
+      <p>3 cursos con profesores diferentes</p>
+    </div>
+  </div>
+  <div class="dashboard-grid">
+    <a routerLink="enrollment" class="dashboard-card">
+      <span class="dashboard-card__icon"><app-icon name="enrollment" size="1.3rem" /></span>
+      <span class="dashboard-card__content">
+        <strong>Matrícula</strong>
+        <span>Selecciona o actualiza los tres cursos de tu semestre.</span>
+        <small>Gestionar matrícula</small>
+      </span>
+      <span class="dashboard-card__arrow"><app-icon name="arrowRight" size="1rem" /></span>
+    </a>
+    <a routerLink="profile" class="dashboard-card">
+      <span class="dashboard-card__icon"><app-icon name="profile" size="1.3rem" /></span>
+      <span class="dashboard-card__content">
+        <strong>Perfil</strong>
+        <span>Consulta y mantén actualizada tu información personal.</span>
+        <small>Ver mi perfil</small>
+      </span>
+      <span class="dashboard-card__arrow"><app-icon name="arrowRight" size="1rem" /></span>
+    </a>
+  </div>
+</section>

@@ -1,0 +1,36 @@
+<section class="page-layout">
+  <app-page-header
+    icon="dashboard"
+    eyebrow="Administración"
+    title="Panel administrativo"
+    description="Gestiona la estructura académica y las cuentas del portal desde un solo espacio."
+  />
+
+  <section class="admin-modules" aria-labelledby="admin-modules-title">
+    <header class="admin-modules__header">
+      <div>
+        <small>Gestión académica</small>
+        <h2 id="admin-modules-title">Áreas de administración</h2>
+        <p>Selecciona un módulo para consultar y administrar su información.</p>
+      </div>
+      <span class="admin-modules__count">
+        <strong>{{ resources.length }}</strong>
+        <small>módulos</small>
+      </span>
+    </header>
+
+    <div class="resource-grid">
+      @for (resource of resources; track resource.route) {
+        <a class="resource-card" [routerLink]="resource.route">
+          <span class="resource-card__icon"><app-icon [name]="resource.icon" size="1.25rem" /></span>
+          <span class="resource-card__content">
+            <strong>{{ resource.title }}</strong>
+            <span>{{ resource.description }}</span>
+            <small>Abrir módulo</small>
+          </span>
+          <span class="resource-card__arrow"><app-icon name="arrowRight" size="1rem" /></span>
+        </a>
+      }
+    </div>
+  </section>
+</section>

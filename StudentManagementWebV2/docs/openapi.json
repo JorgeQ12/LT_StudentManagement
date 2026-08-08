@@ -12,9 +12,7 @@
   "paths": {
     "/api/Authentication/GenerateAntiforgeryToken": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "200": {
             "description": "OK",
@@ -31,9 +29,7 @@
     },
     "/api/Authentication/RegisterStudent": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -70,9 +66,7 @@
     },
     "/api/Authentication/Login": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -119,9 +113,7 @@
     },
     "/api/Authentication/Logout": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "204": {
             "description": "No Content"
@@ -141,9 +133,7 @@
     },
     "/api/Authentication/GetAuthenticatedUser": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "200": {
             "description": "OK",
@@ -170,9 +160,7 @@
     },
     "/api/AcademicPrograms/GetActiveAcademicPrograms": {
       "get": {
-        "tags": [
-          "Academic Programs"
-        ],
+        "tags": ["Academic Programs"],
         "responses": {
           "200": {
             "description": "OK",
@@ -192,9 +180,7 @@
     },
     "/api/Courses/GetActiveCoursesByAcademicProgram": {
       "get": {
-        "tags": [
-          "Courses"
-        ],
+        "tags": ["Courses"],
         "parameters": [
           {
             "name": "academicProgramId",
@@ -235,9 +221,7 @@
     },
     "/api/Enrollments/CreateCurrentStudentEnrollment": {
       "post": {
-        "tags": [
-          "Enrollments"
-        ],
+        "tags": ["Enrollments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -274,9 +258,7 @@
     },
     "/api/Enrollments/GetCurrentStudentEnrollment": {
       "get": {
-        "tags": [
-          "Enrollments"
-        ],
+        "tags": ["Enrollments"],
         "responses": {
           "200": {
             "description": "OK",
@@ -303,9 +285,7 @@
     },
     "/api/Enrollments/ReplaceCurrentStudentSelectedCourses": {
       "put": {
-        "tags": [
-          "Enrollments"
-        ],
+        "tags": ["Enrollments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -342,9 +322,7 @@
     },
     "/api/Enrollments/CancelCurrentStudentEnrollment": {
       "delete": {
-        "tags": [
-          "Enrollments"
-        ],
+        "tags": ["Enrollments"],
         "responses": {
           "204": {
             "description": "No Content"
@@ -354,9 +332,7 @@
     },
     "/api/Enrollments/GetCurrentStudentClassmatesByCourse": {
       "get": {
-        "tags": [
-          "Enrollments"
-        ],
+        "tags": ["Enrollments"],
         "responses": {
           "200": {
             "description": "OK",
@@ -376,9 +352,7 @@
     },
     "/api/StudentProfiles/GetCurrentStudentProfile": {
       "get": {
-        "tags": [
-          "Student Profiles"
-        ],
+        "tags": ["Student Profiles"],
         "responses": {
           "200": {
             "description": "OK",
@@ -395,9 +369,7 @@
     },
     "/api/StudentProfiles/UpdateCurrentStudentProfile": {
       "put": {
-        "tags": [
-          "Student Profiles"
-        ],
+        "tags": ["Student Profiles"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -434,9 +406,7 @@
     },
     "/api/StudentProfiles/DeactivateCurrentStudentAccount": {
       "delete": {
-        "tags": [
-          "Student Profiles"
-        ],
+        "tags": ["Student Profiles"],
         "responses": {
           "204": {
             "description": "No Content"
@@ -446,19 +416,14 @@
     },
     "/api/AdministrationAcademicPrograms/GetAllAcademicPrograms": {
       "get": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "parameters": [
           {
             "name": "pageNumber",
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 1
             }
@@ -468,10 +433,7 @@
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 20
             }
@@ -507,9 +469,7 @@
     },
     "/api/AdministrationAcademicPrograms/GetAcademicProgramById": {
       "get": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "parameters": [
           {
             "name": "academicProgramId",
@@ -537,9 +497,7 @@
     },
     "/api/AdministrationAcademicPrograms/CreateAcademicProgram": {
       "post": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -576,9 +534,7 @@
     },
     "/api/AdministrationAcademicPrograms/UpdateAcademicProgram": {
       "put": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -615,9 +571,7 @@
     },
     "/api/AdministrationAcademicPrograms/ActivateAcademicProgram": {
       "put": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -644,9 +598,7 @@
     },
     "/api/AdministrationAcademicPrograms/DeactivateAcademicProgram": {
       "delete": {
-        "tags": [
-          "Administration - Academic Programs"
-        ],
+        "tags": ["Administration - Academic Programs"],
         "parameters": [
           {
             "name": "academicProgramId",
@@ -667,19 +619,14 @@
     },
     "/api/AdministrationCourses/GetAllCourses": {
       "get": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "parameters": [
           {
             "name": "pageNumber",
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 1
             }
@@ -689,10 +636,7 @@
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 20
             }
@@ -736,9 +680,7 @@
     },
     "/api/AdministrationCourses/GetCourseById": {
       "get": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "parameters": [
           {
             "name": "courseId",
@@ -766,9 +708,7 @@
     },
     "/api/AdministrationCourses/CreateCourse": {
       "post": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -805,9 +745,7 @@
     },
     "/api/AdministrationCourses/UpdateCourse": {
       "put": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -844,9 +782,7 @@
     },
     "/api/AdministrationCourses/ActivateCourse": {
       "put": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -873,9 +809,7 @@
     },
     "/api/AdministrationCourses/DeactivateCourse": {
       "delete": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "parameters": [
           {
             "name": "courseId",
@@ -896,9 +830,7 @@
     },
     "/api/AdministrationCourses/AssignProfessor": {
       "put": {
-        "tags": [
-          "Administration - Courses"
-        ],
+        "tags": ["Administration - Courses"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -935,19 +867,14 @@
     },
     "/api/AdministrationProfessors/GetAllProfessors": {
       "get": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "parameters": [
           {
             "name": "pageNumber",
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 1
             }
@@ -957,10 +884,7 @@
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 20
             }
@@ -996,9 +920,7 @@
     },
     "/api/AdministrationProfessors/GetProfessorById": {
       "get": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "parameters": [
           {
             "name": "professorId",
@@ -1026,9 +948,7 @@
     },
     "/api/AdministrationProfessors/CreateProfessor": {
       "post": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1065,9 +985,7 @@
     },
     "/api/AdministrationProfessors/UpdateProfessor": {
       "put": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1104,9 +1022,7 @@
     },
     "/api/AdministrationProfessors/ActivateProfessor": {
       "put": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1133,9 +1049,7 @@
     },
     "/api/AdministrationProfessors/DeactivateProfessor": {
       "delete": {
-        "tags": [
-          "Administration - Professors"
-        ],
+        "tags": ["Administration - Professors"],
         "parameters": [
           {
             "name": "professorId",
@@ -1156,19 +1070,14 @@
     },
     "/api/AdministrationStudents/GetAllStudents": {
       "get": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "parameters": [
           {
             "name": "pageNumber",
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 1
             }
@@ -1178,10 +1087,7 @@
             "in": "query",
             "schema": {
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": ["integer", "string"],
               "format": "int32",
               "default": 20
             }
@@ -1217,9 +1123,7 @@
     },
     "/api/AdministrationStudents/GetStudentById": {
       "get": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "parameters": [
           {
             "name": "studentId",
@@ -1247,9 +1151,7 @@
     },
     "/api/AdministrationStudents/CreateStudent": {
       "post": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1286,9 +1188,7 @@
     },
     "/api/AdministrationStudents/UpdateStudent": {
       "put": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1325,9 +1225,7 @@
     },
     "/api/AdministrationStudents/ActivateStudent": {
       "put": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1354,9 +1252,7 @@
     },
     "/api/AdministrationStudents/DeactivateStudent": {
       "delete": {
-        "tags": [
-          "Administration - Students"
-        ],
+        "tags": ["Administration - Students"],
         "parameters": [
           {
             "name": "studentId",
@@ -1379,13 +1275,7 @@
   "components": {
     "schemas": {
       "AcademicProgramResponse": {
-        "required": [
-          "id",
-          "code",
-          "name",
-          "description",
-          "status"
-        ],
+        "required": ["id", "code", "name", "description", "status"],
         "type": "object",
         "properties": {
           "id": {
@@ -1407,21 +1297,13 @@
         }
       },
       "AccountRole": {
-        "enum": [
-          "Student",
-          "Administrator"
-        ]
+        "enum": ["Student", "Administrator"]
       },
       "AccountStatus": {
-        "enum": [
-          "Active",
-          "Inactive"
-        ]
+        "enum": ["Active", "Inactive"]
       },
       "ActivateAcademicProgramRequest": {
-        "required": [
-          "academicProgramId"
-        ],
+        "required": ["academicProgramId"],
         "type": "object",
         "properties": {
           "academicProgramId": {
@@ -1431,9 +1313,7 @@
         }
       },
       "ActivateCourseRequest": {
-        "required": [
-          "courseId"
-        ],
+        "required": ["courseId"],
         "type": "object",
         "properties": {
           "courseId": {
@@ -1443,9 +1323,7 @@
         }
       },
       "ActivateProfessorRequest": {
-        "required": [
-          "professorId"
-        ],
+        "required": ["professorId"],
         "type": "object",
         "properties": {
           "professorId": {
@@ -1455,9 +1333,7 @@
         }
       },
       "ActivateStudentRequest": {
-        "required": [
-          "studentId"
-        ],
+        "required": ["studentId"],
         "type": "object",
         "properties": {
           "studentId": {
@@ -1467,9 +1343,7 @@
         }
       },
       "AntiforgeryTokenResponse": {
-        "required": [
-          "token"
-        ],
+        "required": ["token"],
         "type": "object",
         "properties": {
           "token": {
@@ -1478,10 +1352,7 @@
         }
       },
       "AssignProfessorRequest": {
-        "required": [
-          "courseId",
-          "professorId"
-        ],
+        "required": ["courseId", "professorId"],
         "type": "object",
         "properties": {
           "courseId": {
@@ -1495,12 +1366,7 @@
         }
       },
       "AuthenticatedUserResponse": {
-        "required": [
-          "accountId",
-          "studentId",
-          "email",
-          "role"
-        ],
+        "required": ["accountId", "studentId", "email", "role"],
         "type": "object",
         "properties": {
           "accountId": {
@@ -1508,10 +1374,7 @@
             "format": "uuid"
           },
           "studentId": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": ["null", "string"],
             "format": "uuid"
           },
           "email": {
@@ -1523,15 +1386,10 @@
         }
       },
       "CatalogStatus": {
-        "enum": [
-          "Active",
-          "Inactive"
-        ]
+        "enum": ["Active", "Inactive"]
       },
       "ClassmateResponse": {
-        "required": [
-          "fullName"
-        ],
+        "required": ["fullName"],
         "type": "object",
         "properties": {
           "fullName": {
@@ -1540,11 +1398,7 @@
         }
       },
       "ClassmatesByCourseResponse": {
-        "required": [
-          "courseId",
-          "courseName",
-          "classmates"
-        ],
+        "required": ["courseId", "courseName", "classmates"],
         "type": "object",
         "properties": {
           "courseId": {
@@ -1591,36 +1445,23 @@
           },
           "credits": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "status": {
             "$ref": "#/components/schemas/CatalogStatus"
           },
           "professorId": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": ["null", "string"],
             "format": "uuid"
           },
           "professorFullName": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         }
       },
       "CreateAcademicProgramRequest": {
-        "required": [
-          "code",
-          "name",
-          "description"
-        ],
+        "required": ["code", "name", "description"],
         "type": "object",
         "properties": {
           "code": {
@@ -1635,11 +1476,7 @@
         }
       },
       "CreateCourseRequest": {
-        "required": [
-          "academicProgramId",
-          "code",
-          "name"
-        ],
+        "required": ["academicProgramId", "code", "name"],
         "type": "object",
         "properties": {
           "academicProgramId": {
@@ -1655,10 +1492,7 @@
         }
       },
       "CreateCurrentStudentEnrollmentRequest": {
-        "required": [
-          "academicProgramId",
-          "courseIds"
-        ],
+        "required": ["academicProgramId", "courseIds"],
         "type": "object",
         "properties": {
           "academicProgramId": {
@@ -1675,10 +1509,7 @@
         }
       },
       "CreateProfessorRequest": {
-        "required": [
-          "firstName",
-          "lastName"
-        ],
+        "required": ["firstName", "lastName"],
         "type": "object",
         "properties": {
           "firstName": {
@@ -1726,14 +1557,7 @@
         }
       },
       "EnrollmentCourseResponse": {
-        "required": [
-          "id",
-          "code",
-          "name",
-          "credits",
-          "professorId",
-          "professorFullName"
-        ],
+        "required": ["id", "code", "name", "credits", "professorId", "professorFullName"],
         "type": "object",
         "properties": {
           "id": {
@@ -1748,10 +1572,7 @@
           },
           "credits": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "professorId": {
@@ -1792,10 +1613,7 @@
           },
           "totalCredits": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "courses": {
@@ -1809,55 +1627,33 @@
             "format": "date-time"
           },
           "cancelledAtUtc": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": ["null", "string"],
             "format": "date-time"
           }
         }
       },
       "EnrollmentStatus": {
-        "enum": [
-          "Active",
-          "Cancelled"
-        ]
+        "enum": ["Active", "Cancelled"]
       },
       "HttpValidationProblemDetails": {
         "type": "object",
         "properties": {
           "type": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "title": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "status": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
+            "type": ["null", "integer", "string"],
             "format": "int32"
           },
           "detail": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "instance": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "errors": {
             "type": "object",
@@ -1871,10 +1667,7 @@
         }
       },
       "LoginRequest": {
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -1886,12 +1679,7 @@
         }
       },
       "PagedResponseOfAcademicProgramResponse": {
-        "required": [
-          "items",
-          "pageNumber",
-          "pageSize",
-          "totalCount"
-        ],
+        "required": ["items", "pageNumber", "pageSize", "totalCount"],
         "type": "object",
         "properties": {
           "items": {
@@ -1902,37 +1690,23 @@
           },
           "pageNumber": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "pageSize": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "totalCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           }
         }
       },
       "PagedResponseOfCourseResponse": {
-        "required": [
-          "items",
-          "pageNumber",
-          "pageSize",
-          "totalCount"
-        ],
+        "required": ["items", "pageNumber", "pageSize", "totalCount"],
         "type": "object",
         "properties": {
           "items": {
@@ -1943,37 +1717,23 @@
           },
           "pageNumber": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "pageSize": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "totalCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           }
         }
       },
       "PagedResponseOfProfessorResponse": {
-        "required": [
-          "items",
-          "pageNumber",
-          "pageSize",
-          "totalCount"
-        ],
+        "required": ["items", "pageNumber", "pageSize", "totalCount"],
         "type": "object",
         "properties": {
           "items": {
@@ -1984,37 +1744,23 @@
           },
           "pageNumber": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "pageSize": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "totalCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           }
         }
       },
       "PagedResponseOfStudentResponse": {
-        "required": [
-          "items",
-          "pageNumber",
-          "pageSize",
-          "totalCount"
-        ],
+        "required": ["items", "pageNumber", "pageSize", "totalCount"],
         "type": "object",
         "properties": {
           "items": {
@@ -2025,26 +1771,17 @@
           },
           "pageNumber": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "pageSize": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           },
           "totalCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           }
         }
@@ -2053,48 +1790,26 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "title": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "status": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
+            "type": ["null", "integer", "string"],
             "format": "int32"
           },
           "detail": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "instance": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         }
       },
       "ProfessorResponse": {
-        "required": [
-          "id",
-          "firstName",
-          "lastName",
-          "status",
-          "assignedCourseCount"
-        ],
+        "required": ["id", "firstName", "lastName", "status", "assignedCourseCount"],
         "type": "object",
         "properties": {
           "id": {
@@ -2112,10 +1827,7 @@
           },
           "assignedCourseCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": ["integer", "string"],
             "format": "int32"
           }
         }
@@ -2157,9 +1869,7 @@
         }
       },
       "ReplaceSelectedCoursesRequest": {
-        "required": [
-          "courseIds"
-        ],
+        "required": ["courseIds"],
         "type": "object",
         "properties": {
           "courseIds": {
@@ -2213,12 +1923,7 @@
         }
       },
       "UpdateAcademicProgramRequest": {
-        "required": [
-          "academicProgramId",
-          "code",
-          "name",
-          "description"
-        ],
+        "required": ["academicProgramId", "code", "name", "description"],
         "type": "object",
         "properties": {
           "academicProgramId": {
@@ -2237,11 +1942,7 @@
         }
       },
       "UpdateCourseRequest": {
-        "required": [
-          "courseId",
-          "code",
-          "name"
-        ],
+        "required": ["courseId", "code", "name"],
         "type": "object",
         "properties": {
           "courseId": {
@@ -2257,13 +1958,7 @@
         }
       },
       "UpdateCurrentStudentProfileRequest": {
-        "required": [
-          "firstName",
-          "lastName",
-          "dateOfBirth",
-          "phoneNumber",
-          "email"
-        ],
+        "required": ["firstName", "lastName", "dateOfBirth", "phoneNumber", "email"],
         "type": "object",
         "properties": {
           "firstName": {
@@ -2285,11 +1980,7 @@
         }
       },
       "UpdateProfessorRequest": {
-        "required": [
-          "professorId",
-          "firstName",
-          "lastName"
-        ],
+        "required": ["professorId", "firstName", "lastName"],
         "type": "object",
         "properties": {
           "professorId": {

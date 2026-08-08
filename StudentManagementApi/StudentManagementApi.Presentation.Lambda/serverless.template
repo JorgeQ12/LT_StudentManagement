@@ -1,22 +1,116 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
-  "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
-  "Parameters": {},
+  "Description": "Student Management ASP.NET Core Minimal API hosted on AWS Lambda.",
+  "Parameters": {
+    "EnvironmentName": {
+      "Type": "String",
+      "Default": "Production",
+      "AllowedValues": [
+        "Development",
+        "QA",
+        "Production"
+      ]
+    },
+    "EnvironmentSlug": {
+      "Type": "String",
+      "Default": "production",
+      "AllowedValues": [
+        "development",
+        "qa",
+        "production"
+      ]
+    },
+    "ApplicationSecretId": {
+      "Type": "String",
+      "Description": "AWS Secrets Manager secret containing ConnectionString and JwtSigningKey JSON properties."
+    },
+    "FrontendOrigin": {
+      "Type": "String",
+      "Description": "Exact HTTPS origin allowed by CORS, without a trailing slash."
+    },
+    "JwtIssuer": {
+      "Type": "String",
+      "Default": "StudentManagementApi"
+    },
+    "JwtAudience": {
+      "Type": "String",
+      "Default": "StudentManagementClient"
+    }
+  },
   "Conditions": {},
   "Resources": {
+    "StudentManagementRestApi": {
+      "Type": "AWS::Serverless::Api",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "student-management-api-${EnvironmentSlug}"
+        },
+        "StageName": {
+          "Ref": "EnvironmentSlug"
+        },
+        "EndpointConfiguration": "REGIONAL",
+        "Tags": {
+          "Application": "StudentManagementApi",
+          "Environment": {
+            "Ref": "EnvironmentName"
+          },
+          "ManagedBy": "AWS-SAM"
+        }
+      }
+    },
     "AspNetCoreFunction": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "student-management-api-${EnvironmentSlug}"
+        },
         "Handler": "StudentManagementApi.Presentation.Lambda",
         "Runtime": "dotnet10",
         "CodeUri": "",
-        "MemorySize": 512,
+        "Architectures": [
+          "x86_64"
+        ],
+        "MemorySize": 1024,
         "Timeout": 30,
+        "Environment": {
+          "Variables": {
+            "ASPNETCORE_ENVIRONMENT": {
+              "Ref": "EnvironmentName"
+            },
+            "ConnectionStrings__StudentManagementDb": {
+              "Fn::Sub": "{{resolve:secretsmanager:${ApplicationSecretId}:SecretString:ConnectionString}}"
+            },
+            "Security__Jwt__Issuer": {
+              "Ref": "JwtIssuer"
+            },
+            "Security__Jwt__Audience": {
+              "Ref": "JwtAudience"
+            },
+            "Security__Jwt__SigningKey": {
+              "Fn::Sub": "{{resolve:secretsmanager:${ApplicationSecretId}:SecretString:JwtSigningKey}}"
+            },
+            "Security__Jwt__AccessTokenLifetimeMinutes": "15",
+            "Cors__AllowLocalhost": "false",
+            "Cors__AllowedOrigins__0": {
+              "Ref": "FrontendOrigin"
+            }
+          }
+        },
+        "Tags": {
+          "Application": "StudentManagementApi",
+          "Environment": {
+            "Ref": "EnvironmentName"
+          },
+          "ManagedBy": "AWS-SAM"
+        },
         "Events": {
           "ProxyResource": {
             "Type": "Api",
             "Properties": {
+              "RestApiId": {
+                "Ref": "StudentManagementRestApi"
+              },
               "Path": "/{proxy+}",
               "Method": "ANY"
             }
@@ -24,6 +118,9 @@
           "RootResource": {
             "Type": "Api",
             "Properties": {
+              "RestApiId": {
+                "Ref": "StudentManagementRestApi"
+              },
               "Path": "/",
               "Method": "ANY"
             }
@@ -34,9 +131,9 @@
   },
   "Outputs": {
     "ApiURL": {
-      "Description": "API endpoint URL for Prod environment",
+      "Description": "API Gateway endpoint URL for this environment",
       "Value": {
-        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        "Fn::Sub": "https://${StudentManagementRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${EnvironmentSlug}/"
       }
     }
   }

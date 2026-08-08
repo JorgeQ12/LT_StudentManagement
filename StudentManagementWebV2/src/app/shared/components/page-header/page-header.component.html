@@ -1,0 +1,17 @@
+<header class="page-header">
+  <div class="page-header__identity">
+    @if (icon(); as headerIcon) {
+      <span class="page-header__icon"><app-icon [name]="headerIcon" size="1.25rem" /></span>
+    }
+    <div>
+      @if (eyebrow()) {
+        <p class="page-header__eyebrow">{{ eyebrow() }}</p>
+      }
+      <h1>{{ title() }}</h1>
+      @if (description()) {
+        <p class="page-header__description">{{ description() }}</p>
+      }
+    </div>
+  </div>
+  <div class="page-header__actions"><ng-content /></div>
+</header>

@@ -1,59 +1,45 @@
-# StudentManagementWebV2
+# Student Management Web V2
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Frontend nuevo e independiente para la API Lambda de Student Management. Está construido con Angular 22, componentes standalone, Signals, Reactive Forms, SCSS y TypeScript estricto.
 
-## Development server
+## Requisitos
 
-To start a local development server, run:
+- Node.js 24.19.x
+- npm 11.x
+- .NET SDK compatible con la solución backend
 
-```bash
-ng serve
+## Desarrollo local
+
+Primero inicia la Lambda directamente en `https://localhost:7273`:
+
+```powershell
+dotnet run --project ..\StudentManagementApi\StudentManagementApi.Presentation.Lambda --urls https://localhost:7273
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Después inicia este frontend:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```powershell
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+La aplicación queda disponible en `https://localhost:4200`. El servidor de Angular redirige `/api` a la Lambda mediante `proxy.conf.json`; HTTPS es necesario para las cookies seguras de autenticación.
 
-```bash
-ng generate --help
+## Verificación
+
+```powershell
+npm run verify
 ```
 
-## Building
+La verificación ejecuta formato, lint, typecheck, pruebas unitarias, build de producción y validación del contrato OpenAPI.
 
-To build the project run:
+## Contrato y arquitectura
 
-```bash
-ng build
-```
+- `docs/openapi.json` contiene el contrato local de 40 operaciones.
+- `scripts/verify-openapi.mjs` detecta operaciones o esquemas críticos ausentes.
+- El flujo de datos es `Page -> Facade -> Data Access Service -> HttpClient`.
+- Autenticación por cookie HttpOnly y protección antiforgery mediante `X-CSRF-TOKEN`.
+- La interfaz usa un sistema visual monocromático y un catálogo central de iconos SVG Lucide.
+- Selects, calendarios, modales, botones y estados visuales usan componentes propios consistentes, sin widgets nativos del sistema operativo.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Consulta `FRONTEND_CONTEXT.md` para las decisiones arquitectónicas completas.

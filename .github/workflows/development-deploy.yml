@@ -1,0 +1,81 @@
+name: Deploy Development
+
+on:
+  push:
+    branches: [development]
+    paths:
+      - StudentManagementApi/**
+      - StudentManagementWebV2/**
+      - infrastructure/**
+      - .github/workflows/development-deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: student-management-development
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Development
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-dotnet@v5.2.0
+        with: { dotnet-version: 10.0.x }
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: npm, cache-dependency-path: StudentManagementWebV2/package-lock.json }
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: student-management-development
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate configuration
+        run: test -n "$AWS_REGION" && test -n "$AWS_ROLE_ARN" && test -n "$TF_STATE_BUCKET"
+      - name: Build Lambda package
+        working-directory: StudentManagementApi
+        run: |
+          dotnet publish StudentManagementApi.Presentation.Lambda -c Release -r linux-x64 --self-contained false -o artifacts/lambda
+          cd artifacts/lambda && zip -r ../student-management-api.zip .
+      - name: Build frontend
+        working-directory: StudentManagementWebV2
+        run: npm ci && npm run build
+      - name: Apply infrastructure
+        working-directory: infrastructure/terraform/development
+        run: |
+          terraform init -input=false -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=student-management/development/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="use_lockfile=true"
+          terraform apply -auto-approve -input=false -var="aws_region=$AWS_REGION" -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
+      - name: Initialize database and verify API
+        working-directory: infrastructure/terraform/development
+        run: |
+          api_url=$(terraform output -raw api_url)
+          for attempt in {1..12}; do
+            status=$(curl --silent --show-error --output /tmp/api-response.json --write-out "%{http_code}" "$api_url/Authentication/GenerateAntiforgeryToken" || true)
+            if [ "$status" = "200" ]; then
+              echo "API initialized successfully."
+              exit 0
+            fi
+            echo "API initialization attempt $attempt returned HTTP $status. Retrying in 10 seconds..."
+            sleep 10
+          done
+          cat /tmp/api-response.json || true
+          exit 1
+      - name: Publish frontend
+        working-directory: infrastructure/terraform/development
+        run: |
+          bucket=$(terraform output -raw frontend_bucket_name)
+          distribution=$(terraform output -raw cloudfront_distribution_id)
+          aws s3 sync ../../../StudentManagementWebV2/dist/student-management-web-v2/browser "s3://$bucket" --delete
+          aws cloudfront create-invalidation --distribution-id "$distribution" --paths "/*"
+          echo "### Development" >> "$GITHUB_STEP_SUMMARY"
+          echo "Frontend: $(terraform output -raw frontend_url)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Swagger: $(terraform output -raw swagger_url)" >> "$GITHUB_STEP_SUMMARY"

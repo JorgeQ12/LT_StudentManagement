@@ -1,0 +1,109 @@
+<section class="page-layout">
+  <app-page-header
+    icon="profile"
+    eyebrow="Espacio estudiantil"
+    title="Mi perfil"
+    description="Mantén actualizados tus datos personales y de contacto."
+  />
+
+  <div class="profile-layout">
+    <aside class="profile-summary">
+      <span class="profile-summary__avatar"><app-icon name="profile" size="2rem" /></span>
+      <small>Perfil del estudiante</small>
+      <h2>
+        {{ form.controls.firstName.value || 'Tu nombre' }}
+        {{ form.controls.lastName.value }}
+      </h2>
+      <p>{{ form.controls.email.value || 'Correo institucional' }}</p>
+      <dl>
+        <div>
+          <dt>Documento</dt>
+          <dd>{{ form.controls.documentNumber.value || 'Sin información' }}</dd>
+        </div>
+        <div>
+          <dt>Teléfono</dt>
+          <dd>{{ form.controls.phoneNumber.value || 'Sin información' }}</dd>
+        </div>
+      </dl>
+      <div class="profile-summary__note">
+        <app-icon name="info" size="1rem" />
+        <span>Tu documento solo puede ser modificado por un administrador.</span>
+      </div>
+    </aside>
+
+    <form class="panel form-grid profile-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <header class="profile-form__header">
+        <span><app-icon name="edit" size="1.15rem" /></span>
+        <div>
+          <small>Información personal</small>
+          <h2>Edita tus datos</h2>
+          <p>Revisa que tu información esté completa y actualizada.</p>
+        </div>
+      </header>
+
+      <div class="form-field">
+        <label class="form-label" for="profile-first-name">Nombres</label>
+        <input id="profile-first-name" class="form-control" formControlName="firstName" />
+        @if (controlError(form.controls.firstName, 'Los nombres')) {
+          <span class="form-error">{{ controlError(form.controls.firstName, 'Los nombres') }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="profile-last-name">Apellidos</label>
+        <input id="profile-last-name" class="form-control" formControlName="lastName" />
+        @if (controlError(form.controls.lastName, 'Los apellidos')) {
+          <span class="form-error">{{ controlError(form.controls.lastName, 'Los apellidos') }}</span>
+        }
+      </div>
+      <div class="form-field form-field--locked">
+        <label class="form-label" for="profile-document">Documento</label>
+        <input id="profile-document" class="form-control" formControlName="documentNumber" />
+        <span class="form-hint">Campo administrado por la institución.</span>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="profile-birth-date">Fecha de nacimiento</label>
+        <app-date-picker
+          id="profile-birth-date"
+          formControlName="dateOfBirth"
+          placeholder="Selecciona la fecha"
+          [max]="maxBirthDate"
+        />
+        @if (controlError(form.controls.dateOfBirth, 'La fecha')) {
+          <span class="form-error">{{ controlError(form.controls.dateOfBirth, 'La fecha') }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="profile-phone">Teléfono</label>
+        <input id="profile-phone" class="form-control" type="tel" formControlName="phoneNumber" />
+        @if (controlError(form.controls.phoneNumber, 'El teléfono')) {
+          <span class="form-error">{{ controlError(form.controls.phoneNumber, 'El teléfono') }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="profile-email">Correo electrónico</label>
+        <input id="profile-email" class="form-control" type="email" formControlName="email" />
+        @if (controlError(form.controls.email, 'El correo')) {
+          <span class="form-error">{{ controlError(form.controls.email, 'El correo') }}</span>
+        }
+      </div>
+      <div class="form-actions profile-form__actions">
+        <span>Los cambios se aplicarán a tu cuenta estudiantil.</span>
+        <app-button type="submit" icon="save" size="large" [loading]="facade.saving()"
+          >Guardar cambios</app-button
+        >
+      </div>
+    </form>
+  </div>
+
+  <section class="danger-zone">
+    <span class="danger-zone__icon"><app-icon name="warning" size="1.25rem" /></span>
+    <div>
+      <small>Acceso a la cuenta</small>
+      <h2>Desactivar mi cuenta</h2>
+      <p>Se cerrará tu sesión y necesitarás ayuda administrativa para volver a ingresar.</p>
+    </div>
+    <app-button variant="actionDanger" icon="error" (click)="facade.deactivate()"
+      >Desactivar cuenta</app-button
+    >
+  </section>
+</section>

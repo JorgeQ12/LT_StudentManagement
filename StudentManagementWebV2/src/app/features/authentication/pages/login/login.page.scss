@@ -1,0 +1,43 @@
+.auth-card {
+  display: grid;
+  width: min(100%, 38rem);
+  gap: var(--spacing-xl);
+}
+
+.auth-card header p {
+  margin-bottom: var(--spacing-2xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.auth-card header h2 {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-xl);
+}
+
+.auth-card header span,
+.auth-card__footer {
+  color: var(--color-text-secondary);
+}
+
+.auth-form {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.auth-form .form-control {
+  min-height: 3.25rem;
+}
+
+.auth-form__submit {
+  padding-top: var(--spacing-xs);
+}
+
+.auth-card__footer {
+  margin: 0;
+  text-align: center;
+}
+
+.auth-card__footer a {
+  font-weight: var(--font-weight-semibold);
+}

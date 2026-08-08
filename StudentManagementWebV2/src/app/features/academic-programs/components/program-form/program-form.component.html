@@ -1,0 +1,36 @@
+<app-form-modal icon="programs" [title]="id ? 'Editar programa' : 'Nuevo programa'" closeLink="/admin/programs">
+  <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-field">
+      <label class="form-label" for="program-code">Código</label
+      ><input id="program-code" class="form-control" formControlName="code" />
+      @if (controlError(form.controls.code, 'El código')) {
+        <span class="form-error">{{ controlError(form.controls.code, 'El código') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="program-name">Nombre</label
+      ><input id="program-name" class="form-control" formControlName="name" />
+      @if (controlError(form.controls.name, 'El nombre')) {
+        <span class="form-error">{{ controlError(form.controls.name, 'El nombre') }}</span>
+      }
+    </div>
+    <div class="form-field form-field--full">
+      <label class="form-label" for="program-description">Descripción</label
+      ><textarea
+        id="program-description"
+        class="form-control"
+        formControlName="description"
+      ></textarea>
+      <span class="form-hint">Hasta 500 caracteres.</span>
+      @if (controlError(form.controls.description, 'La descripción')) {
+        <span class="form-error">{{
+          controlError(form.controls.description, 'La descripción')
+        }}</span>
+      }
+    </div>
+    <div class="form-actions">
+      <a routerLink="/admin/programs"><app-button variant="ghost" icon="cancel">Cancelar</app-button></a
+      ><app-button type="submit" icon="save" [loading]="facade.mutationLoading()">Guardar programa</app-button>
+    </div>
+  </form>
+</app-form-modal>

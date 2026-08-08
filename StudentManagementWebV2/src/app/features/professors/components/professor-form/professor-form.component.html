@@ -1,0 +1,22 @@
+<app-form-modal icon="professors" [title]="id ? 'Editar profesor' : 'Nuevo profesor'" closeLink="/admin/professors">
+  <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-field">
+      <label class="form-label" for="professor-first-name">Nombres</label
+      ><input id="professor-first-name" class="form-control" formControlName="firstName" />
+      @if (controlError(form.controls.firstName, 'Los nombres')) {
+        <span class="form-error">{{ controlError(form.controls.firstName, 'Los nombres') }}</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="professor-last-name">Apellidos</label
+      ><input id="professor-last-name" class="form-control" formControlName="lastName" />
+      @if (controlError(form.controls.lastName, 'Los apellidos')) {
+        <span class="form-error">{{ controlError(form.controls.lastName, 'Los apellidos') }}</span>
+      }
+    </div>
+    <div class="form-actions">
+      <a routerLink="/admin/professors"><app-button variant="ghost" icon="cancel">Cancelar</app-button></a
+      ><app-button type="submit" icon="save" [loading]="facade.mutationLoading()">Guardar profesor</app-button>
+    </div>
+  </form>
+</app-form-modal>

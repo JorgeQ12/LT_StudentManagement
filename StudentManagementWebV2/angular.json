@@ -30,7 +30,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["node_modules/@angular/cdk/overlay-prebuilt.css", "src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -65,7 +65,12 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "host": "localhost",
+            "port": 4200,
+            "ssl": true,
+            "sslCert": ".certs/localhost.pem",
+            "sslKey": ".certs/localhost.key"
           },
           "configurations": {
             "production": {

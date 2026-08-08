@@ -1,0 +1,31 @@
+.register-card {
+  display: grid;
+  width: min(100%, 44rem);
+  gap: var(--spacing-lg);
+  padding-block: var(--spacing-lg);
+}
+
+.register-card header p {
+  margin-bottom: var(--spacing-2xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.register-card header h2 {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-xl);
+}
+
+.register-card header span {
+  color: var(--color-text-secondary);
+}
+
+.register-card a {
+  text-decoration: none;
+}
+
+.register-card .form-actions > a,
+.register-card .form-actions > app-button {
+  display: block;
+  flex: 1 1 0;
+}

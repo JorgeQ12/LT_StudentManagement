@@ -1,0 +1,153 @@
+<section class="page-layout">
+  <app-page-header
+    icon="enrollment"
+    eyebrow="Espacio estudiantil"
+    title="Mi matrícula"
+    description="Selecciona exactamente tres cursos de un mismo programa y con profesores diferentes."
+  />
+
+  @if (facade.loading() && facade.programs().length === 0) {
+    <div class="skeleton" aria-label="Cargando matrícula"></div>
+  } @else {
+    <form class="enrollment-workspace" [formGroup]="form" (ngSubmit)="save()">
+      @if (facade.enrollment(); as enrollment) {
+        <div class="enrollment-status">
+          <span class="enrollment-status__icon"
+            ><app-icon name="programs" size="1.1rem"
+          /></span>
+          <div>
+            <small>Programa académico</small>
+            <strong>{{ enrollment.academicProgram.code }} · {{ enrollment.academicProgram.name }}</strong>
+            <span>Matrícula activa · {{ enrollment.totalCredits }} créditos</span>
+          </div>
+          <app-button variant="actionDanger" icon="error" (click)="facade.cancel()"
+            >Cancelar matrícula</app-button
+          >
+        </div>
+      } @else {
+        <section class="program-selector">
+          <div class="section-intro">
+            <span class="section-intro__icon"><app-icon name="programs" size="1.2rem" /></span>
+            <div>
+              <small>Programa académico</small>
+              <h2>Define la base de tu semestre</h2>
+              <p>El programa determina los cursos que puedes seleccionar.</p>
+            </div>
+          </div>
+          <div class="form-field program-selector__control">
+            <label class="form-label" for="enrollment-program">Selecciona un programa</label>
+            <app-custom-select
+              id="enrollment-program"
+              formControlName="academicProgramId"
+              placeholder="Selecciona tu programa"
+              [options]="programOptions()"
+            />
+          </div>
+        </section>
+      }
+
+      @if (!form.getRawValue().academicProgramId) {
+        <div class="enrollment-empty">
+          <app-empty-state
+            title="Elige tu programa"
+            description="Después podrás seleccionar los tres cursos de tu matrícula."
+          />
+        </div>
+      } @else {
+        <section class="course-selection">
+          <header class="course-selection__header">
+            <div>
+              <small>Cursos disponibles</small>
+              <h2>{{ selectedCourseIds().length === 3 ? 'Tu selección está lista' : 'Elige tres cursos' }}</h2>
+              <p>Selecciona cursos con profesor asignado para completar los 9 créditos.</p>
+            </div>
+            <span class="course-selection__counter" [class.is-complete]="selectedCourseIds().length === 3">
+              <app-icon [name]="selectedCourseIds().length === 3 ? 'check' : 'courses'" size="1rem" />
+              {{ selectedCourseIds().length }} / 3
+            </span>
+          </header>
+
+          <div class="course-grid">
+            @for (course of facade.courses(); track course.id) {
+              <button
+                type="button"
+                class="course-card"
+                [class.is-selected]="isSelected(course.id)"
+                [disabled]="
+                  !course.professorId ||
+                  (selectedCourseIds().length >= 3 && !isSelected(course.id))
+                "
+                (click)="toggleCourse(course)"
+                [attr.aria-pressed]="isSelected(course.id)"
+              >
+                <span class="course-card__top">
+                  <span class="course-card__code">{{ course.code }}</span>
+                  <span class="course-card__check"><app-icon name="check" size="0.95rem" /></span>
+                </span>
+                <strong>{{ course.name }}</strong>
+                <span class="course-card__professor">
+                  <app-icon name="profile" size="1rem" />
+                  {{ course.professorFullName ?? 'Sin profesor asignado' }}
+                </span>
+                <span class="course-card__footer">
+                  <small>{{ course.credits }} créditos</small>
+                  <small>{{ course.professorId ? 'Disponible' : 'No disponible' }}</small>
+                </span>
+              </button>
+            }
+          </div>
+
+          <div class="enrollment-actions">
+            <span>
+              <strong>{{ selectedCourseIds().length }} cursos seleccionados</strong>
+              <small>{{ selectedCourseIds().length === 3 ? 'La matrícula está lista para confirmar.' : 'Debes completar los tres para continuar.' }}</small>
+            </span>
+            <app-button
+              type="submit"
+              size="large"
+              icon="check"
+              [disabled]="selectedCourseIds().length !== 3"
+              [loading]="facade.saving()"
+              >{{ facade.hasEnrollment() ? 'Actualizar cursos' : 'Confirmar matrícula' }}</app-button
+            >
+          </div>
+        </section>
+      }
+    </form>
+
+    @if (facade.classmates().length) {
+      <section class="classmates-panel">
+        <div class="section-intro">
+          <span class="section-intro__icon"><app-icon name="students" size="1.2rem" /></span>
+          <div>
+            <small>Tu comunidad</small>
+            <h2>Compañeros por curso</h2>
+            <p>Consulta quiénes compartirán contigo cada espacio académico.</p>
+          </div>
+        </div>
+        <div class="classmates-grid">
+          @for (group of facade.classmates(); track group.courseId) {
+            <article>
+              <header>
+                <span><app-icon name="courses" size="1rem" /></span>
+                <div>
+                  <h3>{{ group.courseName }}</h3>
+                  <small>{{ group.classmates.length }} compañeros</small>
+                </div>
+              </header>
+              @if (group.classmates.length) {
+                <ul>
+                  @for (classmate of group.classmates; track classmate.fullName) {
+                    <li><app-icon name="profile" size="0.9rem" />{{ classmate.fullName }}</li>
+                  }
+                </ul>
+              } @else {
+                <p class="muted">Aún no hay otros compañeros.</p>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

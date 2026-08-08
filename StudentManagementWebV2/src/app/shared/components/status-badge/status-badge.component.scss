@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  align-items: center;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badge::before {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+
+.badge--active {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.badge--inactive,
+.badge--cancelled {
+  color: var(--color-error);
+  background: var(--color-error-soft);
+}
