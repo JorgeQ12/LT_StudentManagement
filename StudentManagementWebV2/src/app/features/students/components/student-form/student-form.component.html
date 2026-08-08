@@ -1,4 +1,4 @@
-<app-form-modal [title]="id ? 'Editar estudiante' : 'Nuevo estudiante'" closeLink="/admin/students">
+<app-form-modal icon="students" [title]="id ? 'Editar estudiante' : 'Nuevo estudiante'" closeLink="/admin/students">
   <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form-field">
       <label class="form-label" for="student-first-name">Nombres</label

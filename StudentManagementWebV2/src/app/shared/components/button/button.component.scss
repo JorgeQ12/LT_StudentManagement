@@ -79,6 +79,42 @@
   background: transparent;
 }
 
+.button--action,
+.button--actionSuccess,
+.button--actionDanger {
+  min-width: 7.25rem;
+  border-color: #dedede;
+  color: #252525;
+  background: #fff;
+}
+
+.button--action:hover:not(:disabled) {
+  border-color: #bdbdbd;
+  background: #ededed;
+}
+
+.button--actionSuccess {
+  border-color: #cfe5d8;
+  color: #22633d;
+  background: #f2faf5;
+}
+
+.button--actionSuccess:hover:not(:disabled) {
+  border-color: #a9d2ba;
+  background: #e6f5ec;
+}
+
+.button--actionDanger {
+  border-color: #efcece;
+  color: #a62929;
+  background: #fff6f6;
+}
+
+.button--actionDanger:hover:not(:disabled) {
+  border-color: #dda9a9;
+  background: #fbe9e9;
+}
+
 .button__spinner {
   width: 1rem;
   height: 1rem;

@@ -56,13 +56,13 @@ The Lambda uses the standard .NET configuration providers. The root `.env.exampl
 dotnet run --project StudentManagementApi.Presentation.Lambda
 ```
 
-The API never applies migrations or inserts academic catalog data automatically; database migrations are an explicit operator action. Deployment secrets must be injected through the AWS environment or its secret-management services.
+Database migrations are explicit by default. The Terraform Development environment enables a guarded startup migration so the private RDS database can be initialized without exposing it publicly. Deployment secrets and the bootstrap administrator credentials are loaded from AWS Secrets Manager.
 
 Development CORS accepts HTTP and HTTPS loopback origins on any port. Browser clients must send requests with credentials enabled because authentication and antiforgery use cookies. Non-development environments accept only origins configured through indexed `Cors__AllowedOrigins__N` variables.
 
 Swagger UI is available at `/swagger`, and its OpenAPI document is exposed at `/openapi/v1.json`.
 
-Development infrastructure and deployment are managed with Terraform. See [`docs/terraform-development.md`](docs/terraform-development.md) for the one-time AWS and GitHub configuration.
+Development infrastructure and deployment are managed with Terraform. See [`docs/terraform-development.md`](../docs/terraform-development.md) for the one-time AWS and GitHub configuration.
 
 ## Authentication and CSRF flow
 

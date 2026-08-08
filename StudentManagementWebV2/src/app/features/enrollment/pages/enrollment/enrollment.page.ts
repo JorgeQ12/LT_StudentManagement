@@ -10,6 +10,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { CatalogCourse } from '../../../academic-catalog/public-api';
 import { EnrollmentFacade } from '../../facade/enrollment.facade';
@@ -20,6 +21,7 @@ import { EnrollmentFacade } from '../../facade/enrollment.facade';
     ButtonComponent,
     CustomSelectComponent,
     EmptyStateComponent,
+    IconComponent,
     PageHeaderComponent,
   ],
   templateUrl: './enrollment.page.html',
@@ -49,6 +51,10 @@ export class EnrollmentPage {
         });
         this.form.controls.academicProgramId.disable({ emitEvent: false });
         this.selectedIds.set(enrollment.courses.map((course) => course.id));
+      } else {
+        this.form.controls.academicProgramId.enable({ emitEvent: false });
+        this.form.controls.academicProgramId.setValue('', { emitEvent: false });
+        this.selectedIds.set([]);
       }
     });
     this.form.controls.academicProgramId.valueChanges.subscribe((programId) => {

@@ -6,6 +6,7 @@ on:
     paths:
       - StudentManagementApi/**
       - StudentManagementWebV2/**
+      - infrastructure/**
       - .github/workflows/development-deploy.yml
   workflow_dispatch:
 
@@ -49,16 +50,31 @@ jobs:
         working-directory: StudentManagementWebV2
         run: npm ci && npm run build
       - name: Apply infrastructure
-        working-directory: StudentManagementApi/infrastructure/terraform/development
+        working-directory: infrastructure/terraform/development
         run: |
           terraform init -input=false -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=student-management/development/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="use_lockfile=true"
-          terraform apply -auto-approve -input=false -var="aws_region=$AWS_REGION" -var="lambda_package_path=../../../artifacts/student-management-api.zip"
+          terraform apply -auto-approve -input=false -var="aws_region=$AWS_REGION" -var="lambda_package_path=../../../StudentManagementApi/artifacts/student-management-api.zip"
+      - name: Initialize database and verify API
+        working-directory: infrastructure/terraform/development
+        run: |
+          api_url=$(terraform output -raw api_url)
+          for attempt in {1..12}; do
+            status=$(curl --silent --show-error --output /tmp/api-response.json --write-out "%{http_code}" "$api_url/Authentication/GenerateAntiforgeryToken" || true)
+            if [ "$status" = "200" ]; then
+              echo "API initialized successfully."
+              exit 0
+            fi
+            echo "API initialization attempt $attempt returned HTTP $status. Retrying in 10 seconds..."
+            sleep 10
+          done
+          cat /tmp/api-response.json || true
+          exit 1
       - name: Publish frontend
-        working-directory: StudentManagementApi/infrastructure/terraform/development
+        working-directory: infrastructure/terraform/development
         run: |
           bucket=$(terraform output -raw frontend_bucket_name)
           distribution=$(terraform output -raw cloudfront_distribution_id)
-          aws s3 sync ../../../../StudentManagementWebV2/dist/student-management-web-v2/browser "s3://$bucket" --delete
+          aws s3 sync ../../../StudentManagementWebV2/dist/student-management-web-v2/browser "s3://$bucket" --delete
           aws cloudfront create-invalidation --distribution-id "$distribution" --paths "/*"
           echo "### Development" >> "$GITHUB_STEP_SUMMARY"
           echo "Frontend: $(terraform output -raw frontend_url)" >> "$GITHUB_STEP_SUMMARY"

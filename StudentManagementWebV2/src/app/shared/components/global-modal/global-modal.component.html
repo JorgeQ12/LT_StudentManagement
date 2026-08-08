@@ -2,26 +2,34 @@
   <div class="modal-backdrop" (mousedown)="onBackdrop($event)">
     <section
       class="modal"
-      [class]="'modal modal--' + (modal.size ?? 'medium')"
+      [class]="'modal modal--' + (modal.size ?? 'medium') + ' modal--' + modal.type"
       cdkTrapFocus
       [cdkTrapFocusAutoCapture]="true"
-      role="alertdialog"
+      [attr.role]="modal.confirmation ? 'alertdialog' : 'dialog'"
       aria-modal="true"
       aria-labelledby="global-modal-title"
       aria-describedby="global-modal-description"
     >
-      <div
-        class="modal__icon"
-        [class]="'modal__icon modal__icon--' + modal.type"
-        aria-hidden="true"
-      >
-        <app-icon [name]="iconName(modal.type)" size="1.6rem" />
-      </div>
-      <div class="modal__content">
-        <h2 id="global-modal-title">{{ modal.title }}</h2>
+      <header class="modal__header">
+        <div class="modal__title-group">
+          <div class="modal__icon" aria-hidden="true">
+            <app-icon [name]="iconName(modal.type)" size="1.2rem" />
+          </div>
+          <div>
+            <span>{{ typeLabel(modal.type) }}</span>
+            <h2 id="global-modal-title">{{ modal.title }}</h2>
+          </div>
+        </div>
+        @if (modal.dismissible !== false) {
+          <button class="modal__close" type="button" aria-label="Cerrar modal" (click)="cancel()">
+            <app-icon name="cancel" />
+          </button>
+        }
+      </header>
+      <div class="modal__body">
         <p id="global-modal-description">{{ modal.message }}</p>
       </div>
-      <div class="modal__actions">
+      <footer class="modal__actions">
         @if (modal.confirmation) {
           <app-button variant="outline" icon="cancel" (click)="cancel()">{{
             modal.cancelText ?? 'Cancelar'
@@ -30,7 +38,7 @@
         <app-button icon="check" [variant]="modal.destructive ? 'danger' : 'primary'" (click)="confirm()">
           {{ modal.confirmText ?? 'Aceptar' }}
         </app-button>
-      </div>
+      </footer>
     </section>
   </div>
 }

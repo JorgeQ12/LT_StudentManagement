@@ -1,7 +1,7 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '../icon/icon.component';
+import { AppIconName, IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-form-modal',
@@ -13,4 +13,5 @@ import { IconComponent } from '../icon/icon.component';
 export class FormModalComponent {
   readonly title = input.required<string>();
   readonly closeLink = input.required<string>();
+  readonly icon = input.required<AppIconName>();
 }

@@ -1,7 +1,15 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { AppIconName, IconComponent } from '../icon/icon.component';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'danger'
+  | 'ghost'
+  | 'action'
+  | 'actionSuccess'
+  | 'actionDanger';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 @Component({

@@ -1,5 +1,5 @@
 <nav class="pagination" aria-label="Paginación">
-  <p>{{ from() }}–{{ to() }} de {{ totalCount() }}</p>
+  <p class="pagination__summary">{{ from() }}–{{ to() }} de {{ totalCount() }} registros</p>
   <div class="pagination__actions">
     <app-button
       variant="outline"
@@ -10,7 +10,7 @@
     >
       Anterior
     </app-button>
-    <span>Página {{ pageNumber() }} de {{ totalPages() }}</span>
+    <span class="pagination__page">Página {{ pageNumber() }} de {{ totalPages() }}</span>
     <app-button
       variant="outline"
       size="small"

@@ -34,6 +34,7 @@ export class CoursesFacade {
   private readonly programsState = signal<readonly CatalogAcademicProgram[]>([]);
   private readonly professorsState = signal<readonly Professor[]>([]);
   private readonly listLoadingState = signal(false);
+  private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: CourseQuery = { pageNumber: 1, pageSize: 20 };
   readonly page = this.pageState.asReadonly();
@@ -41,6 +42,7 @@ export class CoursesFacade {
   readonly programs = this.programsState.asReadonly();
   readonly professors = this.professorsState.asReadonly();
   readonly listLoading = this.listLoadingState.asReadonly();
+  readonly detailLoading = this.detailLoadingState.asReadonly();
   readonly mutationLoading = this.mutationLoadingState.asReadonly();
   loadLookups(): void {
     if (this.programsState().length && this.professorsState().length) return;
@@ -59,23 +61,26 @@ export class CoursesFacade {
           this.showError('No fue posible cargar los datos de apoyo', error),
       });
   }
-  load(query: CourseQuery): void {
+  load(query: CourseQuery, onSuccess?: () => void): void {
     this.lastQuery = query;
     this.listLoadingState.set(true);
     this.api
       .getAll(query)
       .pipe(finalize(() => this.listLoadingState.set(false)))
       .subscribe({
-        next: (page) => this.pageState.set(page),
+        next: (page) => {
+          this.pageState.set(page);
+          onSuccess?.();
+        },
         error: (error: unknown) => this.showError('No fue posible cargar los cursos', error),
       });
   }
   loadById(id: string): void {
     this.selectedState.set(null);
-    this.listLoadingState.set(true);
+    this.detailLoadingState.set(true);
     this.api
       .getById(id)
-      .pipe(finalize(() => this.listLoadingState.set(false)))
+      .pipe(finalize(() => this.detailLoadingState.set(false)))
       .subscribe({
         next: (course) => this.selectedState.set(course),
         error: (error: unknown) => this.showError('No fue posible cargar el curso', error),
@@ -86,11 +91,13 @@ export class CoursesFacade {
     const operation = 'courseId' in request ? this.api.update(request) : this.api.create(request);
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
-        await this.modal.success({
-          title: 'Curso guardado',
-          message: 'La información del curso quedó actualizada.',
-        });
-        void this.router.navigate(['/admin/courses']);
+        await this.router.navigate(['/admin/courses']);
+        this.load(this.lastQuery, () =>
+          void this.modal.success({
+            title: 'Curso guardado',
+            message: 'La información del curso quedó actualizada.',
+          }),
+        );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el curso', error),
     });

@@ -1,11 +1,14 @@
 @if (loading()) {
   <div class="loader" role="presentation">
     <section class="loader__dialog" role="status" aria-live="polite" aria-label="Cargando contenido">
-      <div class="loader__spinner" aria-hidden="true"></div>
-      <div>
-        <strong>Procesando solicitud</strong>
-        <span>Espera un momento, por favor.</span>
+      <div class="loader__visual" aria-hidden="true">
+        <div class="loader__spinner"></div>
       </div>
+      <div class="loader__content">
+        <strong>Procesando solicitud</strong>
+        <span>Estamos actualizando la información. Espera un momento.</span>
+      </div>
+      <div class="loader__progress" aria-hidden="true"><span></span></div>
     </section>
   </div>
 }

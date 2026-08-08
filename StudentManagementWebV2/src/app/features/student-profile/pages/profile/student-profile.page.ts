@@ -2,13 +2,20 @@ import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { yesterdayIsoDate } from '../../../../shared/utils/dates';
 import { getControlError, pastDateValidator } from '../../../../shared/utils/form-errors';
 import { StudentProfileFacade } from '../../facade/student-profile.facade';
 @Component({
   selector: 'app-student-profile-page',
-  imports: [ReactiveFormsModule, ButtonComponent, DatePickerComponent, PageHeaderComponent],
+  imports: [
+    ReactiveFormsModule,
+    ButtonComponent,
+    DatePickerComponent,
+    IconComponent,
+    PageHeaderComponent,
+  ],
   templateUrl: './student-profile.page.html',
   styleUrl: './student-profile.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
