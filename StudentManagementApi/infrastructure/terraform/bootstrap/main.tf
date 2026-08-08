@@ -50,6 +50,11 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list = ["sts.amazonaws.com"]
 }
 
+resource "aws_iam_service_linked_role" "rds" {
+  aws_service_name = "rds.amazonaws.com"
+  description      = "Allows Amazon RDS to manage AWS resources for Student Management."
+}
+
 resource "aws_iam_role" "github_deployer" {
   name = "student-management-development-terraform"
   assume_role_policy = jsonencode({
