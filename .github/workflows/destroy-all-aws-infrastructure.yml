@@ -1,0 +1,131 @@
+name: Destroy Development Infrastructure
+
+run-name: Destroy Development requested by ${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DESTROY-DEVELOPMENT to permanently delete the Development environment
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: student-management-development
+  cancel-in-progress: false
+
+jobs:
+  destroy:
+    name: Destroy Development
+    runs-on: ubuntu-latest
+    environment: Development
+    timeout-minutes: 120
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+
+    steps:
+      - name: Check out the Development infrastructure
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: development
+
+      - name: Verify permanent deletion confirmation
+        shell: bash
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+
+          if [ "$CONFIRMATION" != "DESTROY-DEVELOPMENT" ]; then
+            echo "Confirmation does not match DESTROY-DEVELOPMENT. Nothing was deleted."
+            exit 1
+          fi
+
+      - name: Validate GitHub environment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_REGION"
+          test -n "$AWS_ROLE_ARN"
+          test -n "$TF_STATE_BUCKET"
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Authenticate to AWS with OIDC
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: student-management-destroy-development
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate AWS account and state bucket
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          account_id=$(aws sts get-caller-identity --query Account --output text)
+          expected_state_bucket="student-management-tf-state-${account_id}-${AWS_REGION}"
+
+          if [ "$TF_STATE_BUCKET" != "$expected_state_bucket" ]; then
+            echo "Refusing to continue with unexpected state bucket: $TF_STATE_BUCKET"
+            echo "Expected: $expected_state_bucket"
+            exit 1
+          fi
+
+          aws s3api head-bucket --bucket "$TF_STATE_BUCKET"
+
+      - name: Create Terraform destroy placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/student-management-destroy
+          printf 'destroy' > /tmp/student-management-destroy/placeholder.txt
+          cd /tmp/student-management-destroy
+          zip -q /tmp/student-management-destroy-placeholder.zip placeholder.txt
+
+      - name: Initialize Terraform state
+        working-directory: infrastructure/terraform/development
+        run: >-
+          terraform init
+          -input=false
+          -backend-config="bucket=$TF_STATE_BUCKET"
+          -backend-config="key=student-management/development/terraform.tfstate"
+          -backend-config="region=$AWS_REGION"
+          -backend-config="use_lockfile=true"
+
+      - name: Show resources scheduled for deletion
+        working-directory: infrastructure/terraform/development
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform state list
+          terraform plan \
+            -destroy \
+            -input=false \
+            -out=destroy.tfplan \
+            -var="aws_region=$AWS_REGION" \
+            -var="lambda_package_path=/tmp/student-management-destroy-placeholder.zip"
+
+      - name: Destroy Development infrastructure
+        working-directory: infrastructure/terraform/development
+        run: terraform apply -input=false -auto-approve destroy.tfplan
+
+      - name: Delete the application log group
+        run: >-
+          aws logs delete-log-group
+          --log-group-name /aws/lambda/student-management-development-api
+          2>/dev/null || true
+
+      - name: Write destruction summary
+        if: success()
+        run: |
+          echo "### Development infrastructure destroyed" >> "$GITHUB_STEP_SUMMARY"
+          echo "The application resources managed by the Development Terraform state were deleted." >> "$GITHUB_STEP_SUMMARY"
+          echo "The Terraform state bucket, GitHub OIDC provider and deployer role were preserved." >> "$GITHUB_STEP_SUMMARY"
+          echo "No RDS final snapshot was retained." >> "$GITHUB_STEP_SUMMARY"
