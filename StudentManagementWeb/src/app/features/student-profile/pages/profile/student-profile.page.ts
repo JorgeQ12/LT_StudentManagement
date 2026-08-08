@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
@@ -36,7 +36,7 @@ export class StudentProfilePage {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
   });
   constructor() {
-    this.facade.load();
+    afterNextRender(() => this.facade.load());
     effect(() => {
       const profile = this.facade.profile();
       if (profile)

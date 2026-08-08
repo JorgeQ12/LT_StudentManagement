@@ -16,7 +16,7 @@ export class StudentProfileFacade {
   private readonly antiforgery = inject(AntiforgeryService);
   private readonly router = inject(Router);
   private readonly profileState = signal<StudentProfile | null>(null);
-  private readonly loadingState = signal(false);
+  private readonly loadingState = signal(true);
   private readonly savingState = signal(false);
   readonly profile = this.profileState.asReadonly();
   readonly loading = this.loadingState.asReadonly();

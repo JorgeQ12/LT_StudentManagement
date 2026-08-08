@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { debounceTime, distinctUntilChanged, map, Subject, takeUntil } from 'rxjs';
@@ -66,8 +73,10 @@ export class CourseListPage implements OnDestroy {
       .pipe(distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => this.load(1));
 
-    this.facade.loadLookups();
-    this.load(1);
+    afterNextRender(() => {
+      this.facade.loadLookups();
+      this.load(1);
+    });
   }
 
   ngOnDestroy(): void {

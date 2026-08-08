@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -42,7 +43,7 @@ export class EnrollmentPage {
     academicProgramId: ['', Validators.required],
   });
   constructor() {
-    this.facade.load();
+    afterNextRender(() => this.facade.load());
     effect(() => {
       const enrollment = this.facade.enrollment();
       if (enrollment) {

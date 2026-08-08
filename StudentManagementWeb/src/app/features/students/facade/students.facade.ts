@@ -25,7 +25,7 @@ export class StudentsFacade {
     totalCount: 0,
   });
   private readonly selectedState = signal<Student | null>(null);
-  private readonly listLoadingState = signal(false);
+  private readonly listLoadingState = signal(true);
   private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: StudentQuery = { pageNumber: 1, pageSize: 20 };
@@ -65,11 +65,13 @@ export class StudentsFacade {
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
         await this.router.navigate(['/admin/students']);
-        this.load(this.lastQuery, () =>
-          void this.modal.success({
-            title: 'Estudiante guardado',
-            message: 'La información del estudiante quedó actualizada.',
-          }),
+        this.load(
+          this.lastQuery,
+          () =>
+            void this.modal.success({
+              title: 'Estudiante guardado',
+              message: 'La información del estudiante quedó actualizada.',
+            }),
         );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el estudiante', error),

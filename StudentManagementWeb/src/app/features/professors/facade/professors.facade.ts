@@ -25,7 +25,7 @@ export class ProfessorsFacade {
     totalCount: 0,
   });
   private readonly selectedState = signal<Professor | null>(null);
-  private readonly listLoadingState = signal(false);
+  private readonly listLoadingState = signal(true);
   private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: ProfessorQuery = { pageNumber: 1, pageSize: 20 };
@@ -70,11 +70,13 @@ export class ProfessorsFacade {
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
         await this.router.navigate(['/admin/professors']);
-        this.load(this.lastQuery, () =>
-          void this.modal.success({
-            title: 'Profesor guardado',
-            message: 'La información del profesor quedó actualizada.',
-          }),
+        this.load(
+          this.lastQuery,
+          () =>
+            void this.modal.success({
+              title: 'Profesor guardado',
+              message: 'La información del profesor quedó actualizada.',
+            }),
         );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el profesor', error),

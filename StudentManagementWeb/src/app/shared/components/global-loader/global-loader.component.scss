@@ -5,8 +5,8 @@
   display: grid;
   padding: var(--spacing-md);
   place-items: center;
-  background: rgb(0 0 0 / 64%);
-  backdrop-filter: blur(4px);
+  background: rgb(0 0 0 / 42%);
+  backdrop-filter: blur(2px);
 }
 
 .loader__dialog {

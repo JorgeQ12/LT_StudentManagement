@@ -33,7 +33,7 @@ export class CoursesFacade {
   private readonly selectedState = signal<Course | null>(null);
   private readonly programsState = signal<readonly CatalogAcademicProgram[]>([]);
   private readonly professorsState = signal<readonly Professor[]>([]);
-  private readonly listLoadingState = signal(false);
+  private readonly listLoadingState = signal(true);
   private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: CourseQuery = { pageNumber: 1, pageSize: 20 };
@@ -92,11 +92,13 @@ export class CoursesFacade {
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
         await this.router.navigate(['/admin/courses']);
-        this.load(this.lastQuery, () =>
-          void this.modal.success({
-            title: 'Curso guardado',
-            message: 'La información del curso quedó actualizada.',
-          }),
+        this.load(
+          this.lastQuery,
+          () =>
+            void this.modal.success({
+              title: 'Curso guardado',
+              message: 'La información del curso quedó actualizada.',
+            }),
         );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el curso', error),

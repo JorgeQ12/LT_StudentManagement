@@ -27,7 +27,7 @@ export class AcademicProgramsFacade {
   private readonly router = inject(Router);
   private readonly pageState = signal<PagedResponse<AcademicProgram>>(EMPTY_PAGE);
   private readonly selectedState = signal<AcademicProgram | null>(null);
-  private readonly listLoadingState = signal(false);
+  private readonly listLoadingState = signal(true);
   private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: AcademicProgramQuery = { pageNumber: 1, pageSize: 20 };
@@ -72,11 +72,13 @@ export class AcademicProgramsFacade {
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
         await this.router.navigate(['/admin/programs']);
-        this.load(this.lastQuery, () =>
-          void this.modal.success({
-            title: 'Programa guardado',
-            message: 'La información del programa quedó actualizada.',
-          }),
+        this.load(
+          this.lastQuery,
+          () =>
+            void this.modal.success({
+              title: 'Programa guardado',
+              message: 'La información del programa quedó actualizada.',
+            }),
         );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el programa', error),

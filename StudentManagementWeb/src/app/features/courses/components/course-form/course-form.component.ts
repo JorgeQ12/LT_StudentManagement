@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
@@ -43,8 +50,10 @@ export class CourseFormComponent {
     professorId: '',
   });
   constructor() {
-    this.facade.loadLookups();
-    if (this.id) this.facade.loadById(this.id);
+    afterNextRender(() => {
+      this.facade.loadLookups();
+      if (this.id) this.facade.loadById(this.id);
+    });
     effect(() => {
       const course = this.facade.selected();
       if (course?.id === this.id) {

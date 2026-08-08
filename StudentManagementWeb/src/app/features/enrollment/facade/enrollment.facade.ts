@@ -20,7 +20,7 @@ export class EnrollmentFacade {
   private readonly programsState = signal<readonly CatalogAcademicProgram[]>([]);
   private readonly coursesState = signal<readonly CatalogCourse[]>([]);
   private readonly classmatesState = signal<readonly ClassmatesByCourse[]>([]);
-  private readonly loadingState = signal(false);
+  private readonly loadingState = signal(true);
   private readonly savingState = signal(false);
   readonly enrollment = this.enrollmentState.asReadonly();
   readonly programs = this.programsState.asReadonly();

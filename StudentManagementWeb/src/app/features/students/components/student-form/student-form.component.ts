@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
@@ -42,7 +42,7 @@ export class StudentFormComponent {
     password: ['', [passwordStrengthValidator]],
   });
   constructor() {
-    if (this.id) this.facade.loadById(this.id);
+    if (this.id) afterNextRender(() => this.facade.loadById(this.id!));
     else {
       this.form.controls.password.addValidators(Validators.required);
       this.form.controls.password.updateValueAndValidity({ emitEvent: false });
