@@ -1,8 +1,8 @@
+import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   computed,
   forwardRef,
   inject,
@@ -21,7 +21,7 @@ export interface CustomSelectOption {
 
 @Component({
   selector: 'app-custom-select',
-  imports: [IconComponent],
+  imports: [CdkConnectedOverlay, CdkOverlayOrigin, IconComponent],
   templateUrl: './custom-select.component.html',
   styleUrl: './custom-select.component.scss',
   providers: [
@@ -44,6 +44,23 @@ export class CustomSelectComponent implements ControlValueAccessor {
   protected readonly open = signal(false);
   protected readonly disabled = signal(false);
   protected readonly focusedIndex = signal(-1);
+  protected readonly overlayWidth = signal(0);
+  protected readonly overlayPositions: ConnectedPosition[] = [
+    {
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'top',
+      offsetY: 8,
+    },
+    {
+      originX: 'start',
+      originY: 'top',
+      overlayX: 'start',
+      overlayY: 'bottom',
+      offsetY: -8,
+    },
+  ];
   protected readonly selectedOption = computed(() =>
     this.options().find((option) => option.value === this.value()),
   );
@@ -135,12 +152,8 @@ export class CustomSelectComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  @HostListener('document:pointerdown', ['$event'])
-  protected closeOnOutsideClick(event: PointerEvent): void {
-    if (!this.element.nativeElement.contains(event.target as Node)) this.close();
-  }
-
   private show(): void {
+    this.overlayWidth.set(this.element.nativeElement.getBoundingClientRect().width);
     this.open.set(true);
     const selectedIndex = this.options().findIndex(
       (option) => option.value === this.value() && !option.disabled,
@@ -148,7 +161,7 @@ export class CustomSelectComponent implements ControlValueAccessor {
     this.focusedIndex.set(selectedIndex >= 0 ? selectedIndex : this.firstEnabledIndex());
   }
 
-  private close(): void {
+  protected close(): void {
     this.open.set(false);
     this.focusedIndex.set(-1);
   }

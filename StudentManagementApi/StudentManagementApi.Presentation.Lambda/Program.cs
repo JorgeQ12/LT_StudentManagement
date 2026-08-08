@@ -1,5 +1,7 @@
 using Amazon.Lambda.AspNetCoreServer.Hosting;
+using Microsoft.EntityFrameworkCore;
 using StudentManagementApi.Infrastructure.Persistence.SqlServer.Bootstrap;
+using StudentManagementApi.Infrastructure.Persistence.SqlServer.Context;
 using StudentManagementApi.Presentation.Lambda;
 using StudentManagementApi.Presentation.Lambda.Configuration;
 
@@ -14,6 +16,12 @@ app.UseLambdaPresentation();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
+    if (builder.Configuration.GetValue<bool>("DatabaseInitialization:ApplyMigrations"))
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<StudentManagementDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+
     await scope.ServiceProvider.GetRequiredService<AdministratorBootstrapper>().CreateIfConfiguredAsync();
 }
 

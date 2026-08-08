@@ -1,9 +1,11 @@
 <Solution>
-  <Project Path="StudentManagementApi.Application.UnitTests/StudentManagementApi.Application.UnitTests.csproj" />
   <Project Path="StudentManagementApi.Application/StudentManagementApi.Application.csproj" />
-  <Project Path="StudentManagementApi.Domain.UnitTests/StudentManagementApi.Domain.UnitTests.csproj" />
   <Project Path="StudentManagementApi.Domain/StudentManagementApi.Domain.csproj" />
   <Project Path="StudentManagementApi.Infrastructure.Persistence.SqlServer/StudentManagementApi.Infrastructure.Persistence.SqlServer.csproj" />
   <Project Path="StudentManagementApi.Infrastructure.Security/StudentManagementApi.Infrastructure.Security.csproj" />
   <Project Path="StudentManagementApi.Presentation.Lambda/StudentManagementApi.Presentation.Lambda.csproj" />
+  <Folder Name="/Test/">
+    <Project Path="Test/StudentManagementApi.Application.UnitTests/StudentManagementApi.Application.UnitTests.csproj" />
+    <Project Path="Test/StudentManagementApi.Domain.UnitTests/StudentManagementApi.Domain.UnitTests.csproj" />
+  </Folder>
 </Solution>

@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using StudentManagementApi.Domain;
 using StudentManagementApi.Domain.Abstractions;
 using StudentManagementApi.Domain.Courses;
+using StudentManagementApi.Domain.ValueObjects;
 
 namespace StudentManagementApi.Application.Specifications;
 
@@ -14,16 +15,19 @@ internal sealed class CoursesPageSpec : Specification<Course>
         CatalogStatus? status,
         AcademicProgramId? academicProgramId)
     {
+        var normalizedSearch = SearchValueObject.Normalize(search);
+        var courseCode = SearchValueObject.TryCreate(normalizedSearch, CourseCode.Create);
+
         Query.Include(course => course.TeachingAssignment!)
                 .ThenInclude(assignment => assignment.Professor)
             .Where(course =>
-                (search == null
-                    || course.Code.Value.Contains(search)
-                    || course.Name.Contains(search)
+                (normalizedSearch == null
+                    || (courseCode != null && course.Code == courseCode)
+                    || course.Name.Contains(normalizedSearch)
                     || (course.TeachingAssignment != null
                         && course.TeachingAssignment.Professor != null
                         && (course.TeachingAssignment.Professor.FirstName + " "
-                            + course.TeachingAssignment.Professor.LastName).Contains(search)))
+                            + course.TeachingAssignment.Professor.LastName).Contains(normalizedSearch)))
                 && (status == null || course.Status == status.Value)
                 && (academicProgramId == null
                     || course.AcademicProgramId == academicProgramId.Value))

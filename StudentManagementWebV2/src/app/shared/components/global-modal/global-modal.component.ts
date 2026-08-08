@@ -49,4 +49,16 @@ export class GlobalModalComponent {
 
     return icons[type];
   }
+
+  protected typeLabel(type: ModalType): string {
+    const labels: Record<ModalType, string> = {
+      success: 'Operación completada',
+      warning: 'Atención',
+      error: 'Ocurrió un problema',
+      confirmation: 'Confirma esta acción',
+      info: 'Información',
+    };
+
+    return labels[type];
+  }
 }

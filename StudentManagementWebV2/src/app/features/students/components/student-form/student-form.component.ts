@@ -43,7 +43,10 @@ export class StudentFormComponent {
   });
   constructor() {
     if (this.id) this.facade.loadById(this.id);
-    else this.form.controls.password.addValidators(Validators.required);
+    else {
+      this.form.controls.password.addValidators(Validators.required);
+      this.form.controls.password.updateValueAndValidity({ emitEvent: false });
+    }
     effect(() => {
       const student = this.facade.selected();
       if (student?.id === this.id)

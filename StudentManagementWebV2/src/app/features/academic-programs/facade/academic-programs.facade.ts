@@ -28,32 +28,37 @@ export class AcademicProgramsFacade {
   private readonly pageState = signal<PagedResponse<AcademicProgram>>(EMPTY_PAGE);
   private readonly selectedState = signal<AcademicProgram | null>(null);
   private readonly listLoadingState = signal(false);
+  private readonly detailLoadingState = signal(false);
   private readonly mutationLoadingState = signal(false);
   private lastQuery: AcademicProgramQuery = { pageNumber: 1, pageSize: 20 };
 
   readonly page = this.pageState.asReadonly();
   readonly selected = this.selectedState.asReadonly();
   readonly listLoading = this.listLoadingState.asReadonly();
+  readonly detailLoading = this.detailLoadingState.asReadonly();
   readonly mutationLoading = this.mutationLoadingState.asReadonly();
 
-  load(query: AcademicProgramQuery): void {
+  load(query: AcademicProgramQuery, onSuccess?: () => void): void {
     this.lastQuery = query;
     this.listLoadingState.set(true);
     this.api
       .getAll(query)
       .pipe(finalize(() => this.listLoadingState.set(false)))
       .subscribe({
-        next: (page) => this.pageState.set(page),
+        next: (page) => {
+          this.pageState.set(page);
+          onSuccess?.();
+        },
         error: (error: unknown) => this.showError('No fue posible cargar los programas', error),
       });
   }
 
   loadById(id: string): void {
     this.selectedState.set(null);
-    this.listLoadingState.set(true);
+    this.detailLoadingState.set(true);
     this.api
       .getById(id)
-      .pipe(finalize(() => this.listLoadingState.set(false)))
+      .pipe(finalize(() => this.detailLoadingState.set(false)))
       .subscribe({
         next: (program) => this.selectedState.set(program),
         error: (error: unknown) => this.showError('No fue posible cargar el programa', error),
@@ -66,11 +71,13 @@ export class AcademicProgramsFacade {
       'academicProgramId' in request ? this.api.update(request) : this.api.create(request);
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
-        await this.modal.success({
-          title: 'Programa guardado',
-          message: 'La información del programa quedó actualizada.',
-        });
-        void this.router.navigate(['/admin/programs']);
+        await this.router.navigate(['/admin/programs']);
+        this.load(this.lastQuery, () =>
+          void this.modal.success({
+            title: 'Programa guardado',
+            message: 'La información del programa quedó actualizada.',
+          }),
+        );
       },
       error: (error: unknown) => this.showError('No fue posible guardar el programa', error),
     });

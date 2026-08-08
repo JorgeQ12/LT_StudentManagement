@@ -1,4 +1,4 @@
-<app-form-modal [title]="id ? 'Editar programa' : 'Nuevo programa'" closeLink="/admin/programs">
+<app-form-modal icon="programs" [title]="id ? 'Editar programa' : 'Nuevo programa'" closeLink="/admin/programs">
   <form class="form-grid form-modal__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form-field">
       <label class="form-label" for="program-code">Código</label

@@ -23,9 +23,14 @@ internal static class AwsSecretsConfigurationExtensions
         var values = new Dictionary<string, string?>
         {
             ["ConnectionStrings:StudentManagementDb"] = root.GetProperty("ConnectionString").GetString(),
-            ["Security:Jwt:SigningKey"] = root.GetProperty("JwtSigningKey").GetString()
+            ["Security:Jwt:SigningKey"] = root.GetProperty("JwtSigningKey").GetString(),
+            ["BootstrapAdministrator:Email"] = GetOptionalString(root, "BootstrapAdministratorEmail"),
+            ["BootstrapAdministrator:Password"] = GetOptionalString(root, "BootstrapAdministratorPassword")
         };
 
         configuration.AddInMemoryCollection(values);
     }
+
+    private static string? GetOptionalString(JsonElement root, string propertyName) =>
+        root.TryGetProperty(propertyName, out var property) ? property.GetString() : null;
 }

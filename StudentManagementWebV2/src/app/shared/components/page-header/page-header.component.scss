@@ -5,15 +5,45 @@
 
 .page-header {
   display: flex;
+  position: relative;
   flex-wrap: wrap;
   padding: var(--spacing-lg) var(--spacing-xl);
   border-radius: var(--radius-lg);
   gap: var(--spacing-md);
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   color: white;
   background: linear-gradient(135deg, #171717, #303030);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.page-header::before,
+.page-header::after {
+  position: absolute;
+  border: 2.5rem solid rgb(255 255 255 / 5%);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.page-header::before {
+  width: 12rem;
+  height: 12rem;
+  right: -5rem;
+  bottom: -8rem;
+}
+
+.page-header::after {
+  width: 7rem;
+  height: 7rem;
+  right: 2rem;
+  top: -5rem;
+}
+
+.page-header > * {
+  position: relative;
+  z-index: 1;
 }
 
 .page-header__identity {

@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppIconName, IconComponent } from '../../../../shared/components/icon/icon.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 @Component({
   selector: 'app-admin-dashboard-page',
-  imports: [RouterLink, IconComponent],
+  imports: [RouterLink, IconComponent, PageHeaderComponent],
   templateUrl: './admin-dashboard.page.html',
   styleUrl: './admin-dashboard.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

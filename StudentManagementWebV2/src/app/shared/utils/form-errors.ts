@@ -24,6 +24,8 @@ export function passwordStrengthValidator(
   control: AbstractControl,
 ): { passwordStrength: true } | null {
   const value = String(control.value ?? '');
+  if (!value) return null;
+
   return value.length >= 10 && /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value)
     ? null
     : { passwordStrength: true };

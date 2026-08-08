@@ -2,7 +2,7 @@
   <section class="form-modal" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" role="dialog" aria-modal="true">
     <header class="form-modal__header">
       <div class="form-modal__title-group">
-        <span class="form-modal__mark" aria-hidden="true"><app-icon name="school" size="1.15rem" /></span>
+        <span class="form-modal__mark" aria-hidden="true"><app-icon [name]="icon()" size="1.15rem" /></span>
         <div>
           <span>Gestión académica</span>
           <h1>{{ title() }}</h1>

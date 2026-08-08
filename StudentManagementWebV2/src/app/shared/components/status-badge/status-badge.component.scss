@@ -1,5 +1,6 @@
 .badge {
   display: inline-flex;
+  gap: var(--spacing-xs);
   padding: var(--spacing-2xs) var(--spacing-sm);
   border-radius: var(--radius-pill);
   align-items: center;
@@ -7,6 +8,14 @@
   background: var(--color-surface-secondary);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
+}
+
+.badge::before {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
 }
 
 .badge--active {
