@@ -340,7 +340,7 @@ Configuración Development:
 
 - Motor `sqlserver-ex`.
 - Licencia incluida.
-- Clase `db.t3.medium`.
+- Clase `db.t3.micro`, compatible con AWS Free Plan para SQL Server Express.
 - 20 GB gp3.
 - Single-AZ.
 - Un día de retención de backups.

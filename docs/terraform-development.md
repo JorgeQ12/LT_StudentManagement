@@ -219,20 +219,22 @@ Nunca edites el estado manualmente. Para adoptar un recurso existente utiliza `t
 
 ## Costos y decisiones de Development
 
-- RDS utiliza `db.t3.medium`, 20 GB gp3 y SQL Server Express.
+- RDS utiliza `db.t3.micro`, 20 GB gp3 y SQL Server Express para ser compatible con AWS Free Plan.
 - RDS es Single-AZ, conserva un día de backups y no tiene deletion protection.
 - El VPC Interface Endpoint de Secrets Manager genera un costo recurrente.
 - La distribución CloudFront, S3, Lambda y API Gateway dependen del uso.
 
 Estas decisiones priorizan una demostración funcional. No representan por sí solas una topología productiva.
 
-## Destruir toda la infraestructura de AWS
+## Destruir el ambiente Development
 
-Ejecuta manualmente el workflow **Destroy All AWS Infrastructure** desde GitHub Actions y escribe `DELETE-EVERYTHING` como confirmación.
+Ejecuta manualmente el workflow **Destroy Development Infrastructure** desde GitHub Actions y escribe `DESTROY-DEVELOPMENT` como confirmación.
 
-El proceso elimina primero el ambiente `development` y después los recursos de bootstrap. Esto incluye la base de datos y sus backups, Lambda, API Gateway, CloudFront, los buckets y todas sus versiones, VPC, secretos, logs, roles IAM y el proveedor OIDC de GitHub.
+El proceso elimina los recursos administrados por el estado `student-management/development/terraform.tfstate`: RDS, Lambda, API Gateway, CloudFront, S3 del frontend, VPC, subredes, endpoints, secretos y roles propios de la aplicación.
 
-La eliminación es permanente y no conserva snapshots. Después de ejecutarla, GitHub Actions ya no podrá desplegar hasta crear nuevamente el bootstrap y actualizar las variables del environment `Development`.
+La eliminación es permanente y no conserva snapshots de la base de datos. El bootstrap se conserva: no se eliminan el bucket del estado, el proveedor OIDC ni el rol con el que GitHub se autentica. Por eso el ambiente puede crearse nuevamente ejecutando **Deploy Development**.
+
+GitHub solamente muestra el botón **Run workflow** para workflows presentes en la rama predeterminada. Mientras `main` sea la rama predeterminada, este workflow debe estar en `main`; alternativamente, cambia la rama predeterminada a `development` o fusiona `development` en `main`.
 
 ## Diagnóstico rápido
 

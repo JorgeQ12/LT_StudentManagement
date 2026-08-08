@@ -73,7 +73,7 @@ En la implementación actual el endpoint se crea únicamente en la primera subre
 
 ### RDS
 
-RDS ejecuta SQL Server Express en `db.t3.medium`, con 20 GB gp3, una sola AZ y sin acceso público. El DB subnet group incluye las dos subredes, aunque una instancia Single-AZ se ejecuta en una sola zona a la vez.
+RDS ejecuta SQL Server Express en `db.t3.micro`, con 20 GB gp3, una sola AZ y sin acceso público. Esta clase es compatible con AWS Free Plan. El DB subnet group incluye las dos subredes, aunque una instancia Single-AZ se ejecuta en una sola zona a la vez.
 
 El Security Group de la base únicamente acepta TCP 1433 desde el Security Group de Lambda.
 
@@ -170,4 +170,3 @@ En Development la Lambda obtiene el secreto, aplica migraciones pendientes si es
 Los SVG provienen del paquete oficial [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/) y están incrustados en el `.drawio`. Los contenedores AWS Cloud, región, VPC y subredes utilizan la librería de formas AWS de diagrams.net.
 
 Consulta también la [guía técnica completa](../guia-tecnica-completa.md) y la [guía operativa de Terraform](../terraform-development.md).
-
