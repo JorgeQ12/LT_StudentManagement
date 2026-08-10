@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { authenticatedGuard, homeRedirectGuard, roleGuard } from './core/auth/auth.guards';
+import { authenticatedGuard, roleGuard } from './core/auth/auth.guards';
 import { AppShellComponent } from './layout/app-shell/app-shell.component';
-import { RoutePendingComponent } from './shared/components/route-pending/route-pending.component';
 
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
   {
     path: 'auth',
     loadChildren: () =>
@@ -28,12 +28,6 @@ export const routes: Routes = [
     component: AppShellComponent,
     canActivate: [authenticatedGuard],
     children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        component: RoutePendingComponent,
-        canActivate: [homeRedirectGuard],
-      },
       {
         path: 'admin',
         canMatch: [roleGuard('Administrator')],

@@ -18,19 +18,6 @@ export const authenticatedGuard: CanActivateFn = (_route, state) => {
     );
 };
 
-export const guestGuard: CanActivateFn = () => {
-  const auth = inject(AuthFacade);
-  const router = inject(Router);
-  return auth
-    .ensureSession()
-    .pipe(
-      map(
-        (user) =>
-          !user || router.createUrlTree([user.role === 'Administrator' ? '/admin' : '/student']),
-      ),
-    );
-};
-
 export function roleGuard(role: AccountRole): CanMatchFn {
   return () => {
     const auth = inject(AuthFacade);
@@ -40,17 +27,3 @@ export function roleGuard(role: AccountRole): CanMatchFn {
       .pipe(map((user) => user?.role === role || router.createUrlTree(['/forbidden'])));
   };
 }
-
-export const homeRedirectGuard: CanActivateFn = () => {
-  const auth = inject(AuthFacade);
-  const router = inject(Router);
-  return auth
-    .ensureSession()
-    .pipe(
-      map((user) =>
-        router.createUrlTree([
-          user?.role === 'Administrator' ? '/admin' : user ? '/student' : '/auth/login',
-        ]),
-      ),
-    );
-};

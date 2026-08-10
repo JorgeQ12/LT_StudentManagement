@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
-import { guestGuard } from '../../core/auth/auth.guards';
 
 export const AUTHENTICATION_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [guestGuard],
     loadComponent: () =>
       import('./pages/auth-layout/auth-layout.page').then((module) => module.AuthLayoutPage),
     children: [
