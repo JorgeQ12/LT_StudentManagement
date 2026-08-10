@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { finalize, forkJoin, Observable } from 'rxjs';
+import { finalize, forkJoin, Observable, of, switchMap } from 'rxjs';
 import { ApiErrorService } from '../../../core/api/api-error.service';
 import { PagedResponse } from '../../../core/api/api.models';
 import { ModalService } from '../../../shared/services/modal/modal.service';
@@ -86,9 +86,18 @@ export class CoursesFacade {
         error: (error: unknown) => this.showError('No fue posible cargar el curso', error),
       });
   }
-  save(request: CreateCourseRequest | UpdateCourseRequest): void {
+  save(request: CreateCourseRequest | UpdateCourseRequest, professorId?: string | null): void {
     this.mutationLoadingState.set(true);
-    const operation = 'courseId' in request ? this.api.update(request) : this.api.create(request);
+    const operation: Observable<Course> =
+      'courseId' in request
+        ? this.api.update(request)
+        : this.api
+            .create(request)
+            .pipe(
+              switchMap((course) =>
+                professorId ? this.api.assignProfessor(course.id, professorId) : of(course),
+              ),
+            );
     operation.pipe(finalize(() => this.mutationLoadingState.set(false))).subscribe({
       next: async () => {
         await this.router.navigate(['/admin/courses']);

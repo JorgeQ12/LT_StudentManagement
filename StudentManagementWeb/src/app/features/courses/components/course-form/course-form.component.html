@@ -49,6 +49,16 @@
           >Asignar profesor</app-button
         >
       </div>
+    } @else {
+      <div class="form-field form-field--full">
+        <label class="form-label" for="course-professor">Profesor (opcional)</label
+        ><app-custom-select
+          id="course-professor"
+          formControlName="professorId"
+          placeholder="Selecciona un profesor"
+          [options]="professorOptions()"
+        />
+      </div>
     }
     <div class="form-actions">
       <a routerLink="/admin/courses"><app-button variant="ghost" icon="cancel">Cancelar</app-button></a

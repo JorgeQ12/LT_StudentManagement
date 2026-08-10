@@ -73,10 +73,13 @@ export class CourseFormComponent {
       return;
     }
     const value = this.form.getRawValue();
+    if (this.id) {
+      this.facade.save({ courseId: this.id, code: value.code, name: value.name });
+      return;
+    }
     this.facade.save(
-      this.id
-        ? { courseId: this.id, code: value.code, name: value.name }
-        : { academicProgramId: value.academicProgramId, code: value.code, name: value.name },
+      { academicProgramId: value.academicProgramId, code: value.code, name: value.name },
+      value.professorId || null,
     );
   }
   protected assign(): void {

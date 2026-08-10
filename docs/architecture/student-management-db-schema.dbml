@@ -1,0 +1,177 @@
+// =============================================================================
+// Student Management — Esquema de base de datos (SQL Server)
+// Generado a partir del modelo Code First (EF Core), migración InitialCreate.
+// Pegar en https://dbdiagram.io para visualizar y exportar el diagrama.
+// =============================================================================
+
+Project student_management {
+  database_type: 'SQL Server'
+  Note: 'Esquema Code First (EF Core / .NET 10). Todas las claves son uniqueidentifier (GUID). Casi todas las tablas usan RowVersion (rowversion) para concurrencia optimista y marcas CreatedAtUtc/UpdatedAtUtc (datetimeoffset).'
+}
+
+// ---------------------------------------------------------------------------
+// Enums (se almacenan como texto: nvarchar(32) via JsonStringEnumConverter)
+// ---------------------------------------------------------------------------
+Enum account_role {
+  Administrator
+  Student
+}
+
+Enum enrollment_status {
+  Active
+  Cancelled
+}
+
+// ---------------------------------------------------------------------------
+// Cuentas de usuario
+// ---------------------------------------------------------------------------
+Table UserAccounts {
+  Id uniqueidentifier [pk]
+  Email nvarchar(254) [not null, unique]
+  PasswordHash nvarchar(500) [not null]
+  Role account_role [not null]
+  Status nvarchar(32) [not null]
+  StudentId uniqueidentifier [null, note: 'Back-reference denormalizada. Indice unico filtrado (StudentId IS NOT NULL). NO tiene FK: la relacion real se enfuerza desde Students.AccountId.']
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  RowVersion rowversion [not null, note: 'Concurrencia optimista']
+
+  indexes {
+    Email [unique, name: 'IX_UserAccounts_Email']
+    StudentId [unique, name: 'IX_UserAccounts_StudentId_filtrado']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Estudiantes
+// ---------------------------------------------------------------------------
+Table Students {
+  Id uniqueidentifier [pk]
+  AccountId uniqueidentifier [not null, unique, note: 'FK 1:1 hacia UserAccounts']
+  FirstName nvarchar(100) [not null]
+  LastName nvarchar(100) [not null]
+  DocumentNumber nvarchar(30) [not null, unique]
+  DateOfBirth date [not null]
+  PhoneNumber nvarchar(30) [not null]
+  Status nvarchar(32) [not null]
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  RowVersion rowversion [not null]
+
+  indexes {
+    AccountId [unique, name: 'IX_Students_AccountId']
+    DocumentNumber [unique, name: 'IX_Students_DocumentNumber']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Programas academicos
+// ---------------------------------------------------------------------------
+Table AcademicPrograms {
+  Id uniqueidentifier [pk]
+  Code nvarchar(15) [not null, unique]
+  Name nvarchar(150) [not null]
+  Description nvarchar(500) [not null]
+  Status nvarchar(32) [not null]
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  RowVersion rowversion [not null]
+
+  indexes {
+    Code [unique, name: 'IX_AcademicPrograms_Code']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cursos (pertenecen a un programa; siempre 3 creditos)
+// ---------------------------------------------------------------------------
+Table Courses {
+  Id uniqueidentifier [pk]
+  AcademicProgramId uniqueidentifier [not null]
+  Code nvarchar(15) [not null]
+  Name nvarchar(150) [not null]
+  Credits int [not null, note: 'CHECK CK_Courses_Credits: Credits = 3']
+  Status nvarchar(32) [not null]
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  RowVersion rowversion [not null]
+
+  indexes {
+    (AcademicProgramId, Code) [unique, name: 'IX_Courses_AcademicProgramId_Code']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Profesores
+// ---------------------------------------------------------------------------
+Table Professors {
+  Id uniqueidentifier [pk]
+  FirstName nvarchar(100) [not null]
+  LastName nvarchar(100) [not null]
+  Status nvarchar(32) [not null]
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  RowVersion rowversion [not null]
+}
+
+// ---------------------------------------------------------------------------
+// Asignacion docente (un curso lo dicta un solo profesor)
+// ---------------------------------------------------------------------------
+Table TeachingAssignments {
+  Id uniqueidentifier [pk]
+  ProfessorId uniqueidentifier [not null]
+  CourseId uniqueidentifier [not null, unique, note: 'Unico: un curso se asigna a un solo profesor']
+  AcademicProgramId uniqueidentifier [not null, note: 'Columna denormalizada, sin FK']
+  AssignedAtUtc datetimeoffset [not null]
+
+  indexes {
+    CourseId [unique, name: 'IX_TeachingAssignments_CourseId']
+    (ProfessorId, CourseId) [unique, name: 'IX_TeachingAssignments_ProfessorId_CourseId']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Matriculas (maximo una activa por estudiante)
+// ---------------------------------------------------------------------------
+Table Enrollments {
+  Id uniqueidentifier [pk]
+  StudentId uniqueidentifier [not null]
+  AcademicProgramId uniqueidentifier [not null]
+  Status enrollment_status [not null, note: 'CHECK CK_Enrollments_Status: Active | Cancelled']
+  CreatedAtUtc datetimeoffset [not null]
+  UpdatedAtUtc datetimeoffset [not null]
+  CancelledAtUtc datetimeoffset [null]
+  RowVersion rowversion [not null]
+
+  indexes {
+    StudentId [unique, name: 'IX_Enrollments_StudentId_activa_filtrado']
+    AcademicProgramId [name: 'IX_Enrollments_AcademicProgramId']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cursos seleccionados dentro de una matricula
+// ---------------------------------------------------------------------------
+Table EnrollmentCourses {
+  Id uniqueidentifier [pk]
+  EnrollmentId uniqueidentifier [not null]
+  CourseId uniqueidentifier [not null]
+
+  indexes {
+    (EnrollmentId, CourseId) [unique, name: 'IX_EnrollmentCourses_EnrollmentId_CourseId']
+    CourseId [name: 'IX_EnrollmentCourses_CourseId']
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Relaciones (FKs). Todas ON DELETE RESTRICT salvo EnrollmentCourses->Enrollments (CASCADE).
+// '-' = 1:1, '>' = muchos-a-uno
+// ---------------------------------------------------------------------------
+Ref: Students.AccountId - UserAccounts.Id                    // 1:1  FK_Students_UserAccounts_AccountId
+Ref: Courses.AcademicProgramId > AcademicPrograms.Id         // N:1  FK_Courses_AcademicPrograms_AcademicProgramId
+Ref: TeachingAssignments.ProfessorId > Professors.Id         // N:1  FK_TeachingAssignments_Professors_ProfessorId
+Ref: TeachingAssignments.CourseId - Courses.Id               // 1:1  FK_TeachingAssignments_Courses_CourseId
+Ref: Enrollments.StudentId > Students.Id                     // N:1  FK_Enrollments_Students_StudentId
+Ref: Enrollments.AcademicProgramId > AcademicPrograms.Id     // N:1  FK_Enrollments_AcademicPrograms_AcademicProgramId
+Ref: EnrollmentCourses.EnrollmentId > Enrollments.Id         // N:1  FK_EnrollmentCourses_Enrollments_EnrollmentId (CASCADE)
+Ref: EnrollmentCourses.CourseId > Courses.Id                 // N:1  FK_EnrollmentCourses_Courses_CourseId
