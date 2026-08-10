@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StudentManagementApi.Application.Common.Persistence;
@@ -23,6 +24,13 @@ public static class DependencyInjection
         services.AddScoped<ITransactionManager, EfTransactionManager>();
         services.AddScoped<IAccountSessionValidator, AccountSessionValidator>();
         services.AddScoped<AdministratorBootstrapper>();
+
+        // Persiste el llavero de Data Protection en SQL Server para que el token antiforgery
+        // sobreviva a los cold starts y se valide igual en cualquier instancia de la Lambda.
+        services.AddDataProtection()
+            .SetApplicationName("StudentManagementApi")
+            .PersistKeysToDbContext<StudentManagementWriteDbContext>();
+
         return services;
     }
 }
